@@ -15,7 +15,7 @@ export default function LoginPage() {
           <div className="flex items-center justify-center p-0 rounded-full ring-2 ring-[#77B254] bg-green-200 dark:bg-slate-800">
             <Image src={Icon} alt="logo" width={26} height={26}  />
           </div>
-            Tea Garden Survey.
+            Tea Garden Survey hiiiiii.
           </Link>
         </div>
         <div className="flex flex-1 items-center justify-center">
