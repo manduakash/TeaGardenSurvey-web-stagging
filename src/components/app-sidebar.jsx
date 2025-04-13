@@ -80,6 +80,11 @@ const data = {
       url: "/no-of-members",
       icon: IconUsers,
     },
+    {
+      title: "User Management",
+      url: "/user-management",
+      icon: IconUsers,
+    },
   ],
 
   navSecondary: [
