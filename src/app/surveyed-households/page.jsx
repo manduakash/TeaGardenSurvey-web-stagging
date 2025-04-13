@@ -7,10 +7,18 @@ import {
   SidebarInset,
   SidebarProvider,
 } from "@/components/ui/sidebar";
-import { Eye } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Calendar, ChevronDown, Eye, Filter, Search, X } from "lucide-react";
 import dynamic from "next/dynamic";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useState, useEffect } from "react";
+import { Input } from "@/components/ui/input";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { format } from "date-fns";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar"
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 // Dynamically import react-leaflet components with SSR disabled
 const MapContainer = dynamic(() => import("react-leaflet").then((mod) => mod.MapContainer), {
@@ -29,6 +37,14 @@ const Popup = dynamic(() => import("react-leaflet").then((mod) => mod.Popup), {
 export default function Page() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
+  const [startDate, setStartDate] = useState(undefined);
+  const [endDate, setEndDate] = useState(undefined);
+  const [district, setDistrict] = useState("");
+  const [subdivision, setSubdivision] = useState("");
+  const [block, setBlock] = useState("");
+  const [gp, setGP] = useState("");
+  const [village, setVillage] = useState("");
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [customMarkerIcon, setCustomMarkerIcon] = useState(null);
 
   // Lazy load Leaflet and set the custom marker icon
@@ -336,6 +352,31 @@ export default function Page() {
       ),
     },
   ]
+
+  const clearFilters = () => {
+    setStartDate(undefined);
+    setEndDate(undefined);
+    setDistrict("");
+    setSubdivision("");
+    setBlock("");
+    setGP("");
+    setVillage("");
+  };
+
+  const hasActiveFilters = !!(startDate || endDate || district || subdivision || block || gp || village);
+
+
+  const handleSearch = () => {
+    // Implement the logic to filter data based on the selected filters
+    console.log({
+      startDate,
+      endDate,
+      district,
+      subdivision,
+      block,
+      village,
+    });
+  };
   return (
     <SidebarProvider
       style={{
@@ -349,6 +390,107 @@ export default function Page() {
         <div className="flex flex-1 flex-col">
           <div className="@container/main flex flex-1 flex-col gap-2">
             <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6 mx-10">
+              <div className="border rounded-lg p-4 flex flex-col sm:flex-row items-center justify-between gap-4 flex-wrap">
+                {/* Start Date Selector */}
+                <div className="flex items-center gap-2 w-full sm:w-auto">
+                  <Calendar className="h-6 w-6 text-gray-500" />
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button variant="outline" className="min-w-[150px]">
+                        {startDate ? format(startDate, "dd/MM/yyyy") : "Start Date"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0">
+                      <CalendarComponent mode="single" selected={startDate} onSelect={setStartDate} initialFocus />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+
+                {/* End Date Selector */}
+                <div className="flex items-center gap-2 w-full sm:w-auto">
+                  <Calendar className="h-6 w-6 text-gray-500" />
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button variant="outline" className="min-w-[150px]">
+                        {endDate ? format(endDate, "dd/MM/yyyy") : "End Date"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0">
+                      <CalendarComponent mode="single" selected={endDate} onSelect={setEndDate} initialFocus />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+
+                {/* District Dropdown */}
+                <Select value={district} onValueChange={setDistrict}>
+                  <SelectTrigger className="w-full sm:w-[250px]">
+                    <SelectValue placeholder="Select District" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Darjeeling">Darjeeling</SelectItem>
+                    <SelectItem value="Kalimpong">Kalimpong</SelectItem>
+                    <SelectItem value="Jalpaiguri">Jalpaiguri</SelectItem>
+                    <SelectItem value="Alipurduar">Alipurduar</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select value={district} onValueChange={setDistrict}>
+                  <SelectTrigger className="w-full sm:w-[250px]">
+                    <SelectValue placeholder="Select Sub-Division" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Darjeeling">Darjeeling</SelectItem>
+                    <SelectItem value="Kalimpong">Kalimpong</SelectItem>
+                    <SelectItem value="Jalpaiguri">Jalpaiguri</SelectItem>
+                    <SelectItem value="Alipurduar">Alipurduar</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                {/* Block Dropdown */}
+                <Select value={block} onValueChange={setBlock}>
+                  <SelectTrigger className="w-full sm:w-[250px]">
+                    <SelectValue placeholder="Select Block" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Mirik">Mirik</SelectItem>
+                    <SelectItem value="Kalimpong Block">Kalimpong Block</SelectItem>
+                    <SelectItem value="Matiali">Matiali</SelectItem>
+                    <SelectItem value="Falakata">Falakata</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                {/* GP Dropdown */}
+                <Select value={gp} onValueChange={setGP}>
+                  <SelectTrigger className="w-full sm:w-[250px]">
+                    <SelectValue placeholder="Select GP" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Gopal Dhura">Gopal Dhura</SelectItem>
+                    <SelectItem value="Kalimpong GP">Kalimpong GP</SelectItem>
+                    <SelectItem value="Matiali GP">Matiali GP</SelectItem>
+                    <SelectItem value="Falakata GP">Falakata GP</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select value={gp} onValueChange={setGP}>
+                  <SelectTrigger className="w-full sm:w-[250px]">
+                    <SelectValue placeholder="Select Village" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Gopal Dhura">Gopal Dhura</SelectItem>
+                    <SelectItem value="Kalimpong GP">Kalimpong GP</SelectItem>
+                    <SelectItem value="Matiali GP">Matiali GP</SelectItem>
+                    <SelectItem value="Falakata GP">Falakata GP</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                {/* Search Button */}
+                <Button
+                  className="bg-green-100 hover:bg-green-300 border-[1px] border-green-600 text-slate-800 mx-auto px-8 w-full sm:w-auto"
+                  onClick={handleSearch}
+                >
+                  <Search className="h-4 w-4 mr-2" />
+                  Search
+                </Button>
+              </div>
 
               <DataTable data={data} columns={columns} />
 
@@ -439,3 +581,4 @@ export default function Page() {
     </SidebarProvider>
   );
 }
+
