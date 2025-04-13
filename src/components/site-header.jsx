@@ -6,15 +6,15 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export function SiteHeader() {
-   const pathname = usePathname(); // Get the current path
-    const [currentPath, setCurrentPath] = useState(pathname); // State to manage the current path
-  
-    useEffect(() => {
-      // You can use the pathname here
-      setCurrentPath(pathname);
-    }, [pathname]); // Update the state when pathname changes
+  const pathname = usePathname(); // Get the current path
+  const [currentPath, setCurrentPath] = useState(pathname); // State to manage the current path
 
-    // Define a mapping of paths to titles
+  useEffect(() => {
+    // You can use the pathname here
+    setCurrentPath(pathname);
+  }, [pathname]); // Update the state when pathname changes
+
+  // Define a mapping of paths to titles
   const pathTitles = {
     "/analytics": "Analytics",
     "/dashboard": "Dashboard",
@@ -29,10 +29,11 @@ export function SiteHeader() {
     "/reports": "Reports",
     "/no-of-members": "No. of Members",
     "/surveyed-households": "Surveyed Households",
+    "/user-management": "User Create"
   };
 
-    // Get the title for the current path, or use a default value
-    const pageTitle = pathTitles[currentPath] || "Page Not Found";
+  // Get the title for the current path, or use a default value
+  const pageTitle = pathTitles[currentPath] || "Page Not Found";
 
   return (
     (<header
