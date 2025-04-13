@@ -2,8 +2,12 @@
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { SidebarTrigger } from "@/components/ui/sidebar"
+import { getUserData } from "@/utils/cookies";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import Cookies from "react-cookies";
 
 export function SiteHeader() {
   const pathname = usePathname(); // Get the current path
@@ -34,6 +38,43 @@ export function SiteHeader() {
 
   // Get the title for the current path, or use a default value
   const pageTitle = pathTitles[currentPath] || "Page Not Found";
+  const API_BASE_URL = process.env.NEXT_PUBLIC_SERVICE_URL;
+
+  const [userDetails, setUserDetails] = useState(null);
+  const router = useRouter();
+  useEffect(() => {
+    // Fetch user details on the client side
+    const details = getUserData();
+    setUserDetails(details);
+  }, []);
+
+  if (!userDetails) {
+    // Render a placeholder or nothing until user details are available
+    return null;
+  }
+  const handleLogout = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}auth/logout`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ user_id: userDetails?.UserID }), // Use the correct user ID from userDetails
+      });
+
+      if (response.ok) {
+        // Remove all cookies
+        Cookies.remove("userData", { path: "/" });
+
+        // Redirect to the landing page
+        router.push("/");
+      } else {
+        console.error("Failed to log out");
+      }
+    } catch (error) {
+      console.error("Error during logout:", error);
+    }
+  };
 
   return (
     (<header
@@ -45,14 +86,13 @@ export function SiteHeader() {
           {pageTitle}
         </h1>
         <div className="ml-auto flex items-center gap-2">
-          <Button variant="outline" asChild size="sm" className="hidden sm:flex hover:bg-red-100">
-            <a
-              href="https://github.com/shadcn-ui/ui/tree/main/apps/v4/app/(examples)/dashboard"
-              rel="noopener noreferrer"
-              target="_blank"
-              className="hover:text-red-700 text-red-500">
-              Logout
-            </a>
+          <Button
+            variant="outline"
+            size="sm"
+            className="hidden sm:flex hover:bg-red-100 hover:text-red-700 text-red-500"
+            onClick={handleLogout} // Attach the onClick event directly to the Button
+          >
+            Logout
           </Button>
         </div>
       </div>
