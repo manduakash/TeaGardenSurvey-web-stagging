@@ -33,6 +33,7 @@ export function SiteHeader() {
     "/reports": "Reports",
     "/no-of-members": "No. of Members",
     "/surveyed-households": "Surveyed Households",
+    "/user-management": "User Create"
   };
 
   // Get the title for the current path, or use a default value
