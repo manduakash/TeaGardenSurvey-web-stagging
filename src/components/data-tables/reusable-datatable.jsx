@@ -27,11 +27,16 @@ import autoTable from "jspdf-autotable";
 import { FaFilePdf } from "react-icons/fa6";
 
 export function DataTable({ columns, data: initialData }) {
-    const [data, setData] = React.useState(initialData);
+    const [data, setData] = React.useState(initialData); // Local state for data
     const [searchQuery, setSearchQuery] = React.useState("");
     const [pagination, setPagination] = React.useState({ pageIndex: 0, pageSize: 10 });
     const [excelLoading, setExcelLoading] = React.useState(false);
     const [pdfLoading, setPdfLoading] = React.useState(false);
+
+    // Update local data state when initialData changes
+    React.useEffect(() => {
+        setData(initialData);
+    }, [initialData]);
 
     const filteredData = React.useMemo(() => {
         if (!searchQuery) return data;
@@ -147,8 +152,6 @@ export function DataTable({ columns, data: initialData }) {
         printWindow.print();
         printWindow.close();
     };
-
-
 
     return (
         <div className="overflow-hidden mx-0">
