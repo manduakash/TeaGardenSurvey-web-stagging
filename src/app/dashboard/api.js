@@ -1,4 +1,4 @@
-const api_url = process.env.NEXT_PUBLIC_API_URL;
+const api_url = process.env.NEXT_PUBLIC_SERVICE_URL;
 
 export async function getDashboardCount(subdiv, blk, gp, village ) {
   try {
