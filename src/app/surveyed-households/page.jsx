@@ -13,6 +13,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { format } from "date-fns"
 import { Calendar as CalendarComponent } from "@/components/ui/calendar"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { DatePicker } from "@/components/reusables/date-picker"
 
 // Dynamically import react-leaflet components with SSR disabled
 const MapContainer = dynamic(() => import("react-leaflet").then((mod) => mod.MapContainer), {
@@ -284,14 +285,6 @@ export default function SurveyDashboard() {
       header: "Survey ID",
     },
     {
-      accessorKey: "state",
-      header: "State",
-    },
-    {
-      accessorKey: "district",
-      header: "District",
-    },
-    {
       accessorKey: "sub_division",
       header: "Subdivision",
     },
@@ -312,11 +305,6 @@ export default function SurveyDashboard() {
     {
       accessorKey: "house_number",
       header: "House Number",
-    },
-    {
-      accessorKey: "family_income",
-      header: "Family Income",
-      cell: ({ row }) => `₹${Number(row.original.family_income).toLocaleString()}`,
     },
     {
       id: "actions",
@@ -351,119 +339,96 @@ export default function SurveyDashboard() {
         <div className="flex flex-1 flex-col">
           <div className="@container/main flex flex-1 flex-col gap-2">
             <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6 mx-10">
-              <div className="border rounded-lg p-4 flex flex-col sm:flex-row items-center justify-between gap-4 flex-wrap">
-                {/* Start Date Selector */}
-                <div className="flex items-center gap-2 w-full sm:w-auto">
-                  <Calendar className="h-6 w-6 text-gray-500" />
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button variant="outline" className="min-w-[150px]">
-                        {startDate ? format(startDate, "dd/MM/yyyy") : "Start Date"}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
-                      <CalendarComponent mode="single" selected={startDate} onSelect={setStartDate} initialFocus />
-                    </PopoverContent>
-                  </Popover>
+              <div className="border rounded-lg p-4">
+
+
+                <div className="grid grid-cols-3 gap-6 mb-6">
+
+                  <DatePicker date={startDate} setDate={setStartDate} placeholder="Pick Start Date" />
+
+                  <DatePicker date={endDate} setDate={setEndDate} placeholder="Pick End Date" />
+
+                  {/* District Dropdown */}
+                  <Select value={districtId} onValueChange={handleDistrictChange}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select District" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Districts</SelectItem>
+                      {districts.map((district) => (
+                        <SelectItem key={district.id} value={district.id.toString()}>
+                          {district.district_name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  {/* Subdivision Dropdown */}
+                  <Select value={subdivisionId} onValueChange={handleSubdivisionChange} disabled={!districtId}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select Sub-Division" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Subdivisions</SelectItem>
+                      {subdivisions.map((subdivision) => (
+                        <SelectItem key={subdivision.id} value={subdivision.id.toString()}>
+                          {subdivision.sub_division_name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  {/* Block Dropdown */}
+                  <Select value={blockId} onValueChange={handleBlockChange} disabled={!subdivisionId}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select Block" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Blocks</SelectItem>
+                      {blocks.map((block) => (
+                        <SelectItem key={block.id} value={block.id.toString()}>
+                          {block.block_name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  {/* GP Dropdown */}
+                  <Select value={gpId} onValueChange={handleGpChange} disabled={!blockId}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select GP" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All GPs</SelectItem>
+                      {gps.map((gp) => (
+                        <SelectItem key={gp.id} value={gp.id.toString()}>
+                          {gp.gp_name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
                 </div>
 
-                {/* End Date Selector */}
-                <div className="flex items-center gap-2 w-full sm:w-auto">
-                  <Calendar className="h-6 w-6 text-gray-500" />
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button variant="outline" className="min-w-[150px]">
-                        {endDate ? format(endDate, "dd/MM/yyyy") : "End Date"}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
-                      <CalendarComponent mode="single" selected={endDate} onSelect={setEndDate} initialFocus />
-                    </PopoverContent>
-                  </Popover>
+                <div className="flex gap-2 justify-center">
+                  {/* Search Button */}
+                  <Button
+                    className="bg-green-100 hover:bg-green-300 border-[1px] border-green-600 text-slate-800 px-8 cursor-pointer"
+                    onClick={handleSearch}
+                  >
+                    <Search className="h-4 w-4 mr-2" />
+                    Search
+                  </Button>
+
+                  {/* Clear Filters Button */}
+                  <Button variant="secondary" className="px-8 border cursor-pointer" onClick={clearFilters}>
+                    Clear Filters
+                  </Button>
                 </div>
-
-                {/* District Dropdown */}
-                <Select value={districtId} onValueChange={handleDistrictChange}>
-                  <SelectTrigger className="w-full sm:w-[250px]">
-                    <SelectValue placeholder="Select District" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Districts</SelectItem>
-                    {districts.map((district) => (
-                      <SelectItem key={district.id} value={district.id.toString()}>
-                        {district.district_name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-
-                {/* Subdivision Dropdown */}
-                <Select value={subdivisionId} onValueChange={handleSubdivisionChange} disabled={!districtId}>
-                  <SelectTrigger className="w-full sm:w-[250px]">
-                    <SelectValue placeholder="Select Sub-Division" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Subdivisions</SelectItem>
-                    {subdivisions.map((subdivision) => (
-                      <SelectItem key={subdivision.id} value={subdivision.id.toString()}>
-                        {subdivision.sub_division_name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-
-                {/* Block Dropdown */}
-                <Select value={blockId} onValueChange={handleBlockChange} disabled={!subdivisionId}>
-                  <SelectTrigger className="w-full sm:w-[250px]">
-                    <SelectValue placeholder="Select Block" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Blocks</SelectItem>
-                    {blocks.map((block) => (
-                      <SelectItem key={block.id} value={block.id.toString()}>
-                        {block.block_name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-
-                {/* GP Dropdown */}
-                <Select value={gpId} onValueChange={handleGpChange} disabled={!blockId}>
-                  <SelectTrigger className="w-full sm:w-[250px]">
-                    <SelectValue placeholder="Select GP" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All GPs</SelectItem>
-                    {gps.map((gp) => (
-                      <SelectItem key={gp.id} value={gp.id.toString()}>
-                        {gp.gp_name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-
-                {/* Search Button */}
-                <Button
-                  className="bg-green-100 hover:bg-green-300 border-[1px] border-green-600 text-slate-800 mx-auto px-8 w-full sm:w-auto"
-                  onClick={handleSearch}
-                >
-                  <Search className="h-4 w-4 mr-2" />
-                  Search
-                </Button>
-
-                {/* Clear Filters Button */}
-                <Button variant="outline" className="mx-auto px-8 w-full sm:w-auto" onClick={clearFilters}>
-                  Clear Filters
-                </Button>
               </div>
 
               {/* Data Table */}
-              <div className="border rounded-lg overflow-hidden">
-                <div className="mt-0 overflow-hidden rounded-t-lg">
-                  <div className="bg-gradient-to-r from-cyan-600 to-cyan-400 px-6 py-3">
-                    <h2 className="text-l font-bold text-white">Household Survey Data</h2>
-                  </div>
-                </div>
+              <div className="overflow-hidden rounded-t-4xl">
                 <DataTable data={surveyData} columns={columns} isLoading={isLoading} />
               </div>
 
@@ -481,9 +446,6 @@ export default function SurveyDashboard() {
                       <div className="grid grid-cols-2 gap-2 text-lg">
                         <div className="font-semibold">Survey ID:</div>
                         <div>{selectedRow?.survey_id}</div>
-
-                        <div className="font-semibold">State:</div>
-                        <div>{selectedRow?.state}</div>
 
                         <div className="font-semibold">District:</div>
                         <div>{selectedRow?.district}</div>
