@@ -1,314 +1,291 @@
 "use client"
-import { AppSidebar } from "@/components/app-sidebar";
-import { DataTable } from "@/components/data-tables/reusable-datatable";
-import { SiteHeader } from "@/components/site-header";
-import { Button } from "@/components/ui/button";
-import {
-  SidebarInset,
-  SidebarProvider,
-} from "@/components/ui/sidebar";
-import { cn } from "@/lib/utils";
-import { Calendar, ChevronDown, Eye, Filter, Search, X } from "lucide-react";
-import dynamic from "next/dynamic";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { useState, useEffect } from "react";
-import { Input } from "@/components/ui/input";
+
+import { useState, useEffect } from "react"
+import { AppSidebar } from "@/components/app-sidebar"
+import { DataTable } from "@/components/data-tables/reusable-datatable"
+import { SiteHeader } from "@/components/site-header"
+import { Button } from "@/components/ui/button"
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
+import { Calendar, Search, Eye } from 'lucide-react'
+import dynamic from "next/dynamic"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { format } from "date-fns";
+import { format } from "date-fns"
 import { Calendar as CalendarComponent } from "@/components/ui/calendar"
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 // Dynamically import react-leaflet components with SSR disabled
 const MapContainer = dynamic(() => import("react-leaflet").then((mod) => mod.MapContainer), {
   ssr: false,
-});
+})
 const TileLayer = dynamic(() => import("react-leaflet").then((mod) => mod.TileLayer), {
   ssr: false,
-});
+})
 const Marker = dynamic(() => import("react-leaflet").then((mod) => mod.Marker), {
   ssr: false,
-});
+})
 const Popup = dynamic(() => import("react-leaflet").then((mod) => mod.Popup), {
   ssr: false,
-});
+})
 
-export default function Page() {
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedRow, setSelectedRow] = useState(null);
-  const [startDate, setStartDate] = useState(undefined);
-  const [endDate, setEndDate] = useState(undefined);
-  const [district, setDistrict] = useState("");
-  const [subdivision, setSubdivision] = useState("");
-  const [block, setBlock] = useState("");
-  const [gp, setGP] = useState("");
-  const [village, setVillage] = useState("");
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [customMarkerIcon, setCustomMarkerIcon] = useState(null);
+export default function SurveyDashboard() {
+  // Dialog state
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [selectedRow, setSelectedRow] = useState(null)
+
+  // Date filter states
+  const [startDate, setStartDate] = useState(undefined)
+  const [endDate, setEndDate] = useState(undefined)
+
+  // Location filter states
+  const [stateId, setStateId] = useState(1) // Default to West Bengal (ID: 1)
+  const [districtId, setDistrictId] = useState("")
+  const [subdivisionId, setSubdivisionId] = useState("")
+  const [blockId, setBlockId] = useState("")
+  const [gpId, setGpId] = useState("")
+
+  // Data states
+  const [districts, setDistricts] = useState([])
+  const [subdivisions, setSubdivisions] = useState([])
+  const [blocks, setBlocks] = useState([])
+  const [gps, setGps] = useState([])
+  const [surveyData, setSurveyData] = useState([])
+
+  // Loading states
+  const [isLoading, setIsLoading] = useState(false)
+  const [customMarkerIcon, setCustomMarkerIcon] = useState(null)
+
+  // Fetch districts on initial load
+  useEffect(() => {
+    fetchDistricts()
+  }, [])
 
   // Lazy load Leaflet and set the custom marker icon
   useEffect(() => {
     async function loadLeaflet() {
-      const L = (await import("leaflet")).default;
+      const L = (await import("leaflet")).default
       const icon = new L.Icon({
-        iconUrl: "https://unpkg.com/leaflet@1.9.3/dist/images/marker-icon.png", // Default Leaflet marker icon
-        iconSize: [25, 41], // Size of the icon
-        iconAnchor: [12, 41], // Anchor point of the icon
-        popupAnchor: [1, -34], // Popup anchor point
-        shadowUrl: "https://unpkg.com/leaflet@1.9.3/dist/images/marker-shadow.png", // Shadow image
-        shadowSize: [41, 41], // Size of the shadow
-      });
-      setCustomMarkerIcon(icon);
+        iconUrl: "https://unpkg.com/leaflet@1.9.3/dist/images/marker-icon.png",
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowUrl: "https://unpkg.com/leaflet@1.9.3/dist/images/marker-shadow.png",
+        shadowSize: [41, 41],
+      })
+      setCustomMarkerIcon(icon)
     }
-    loadLeaflet();
-  }, []);
+    loadLeaflet()
+  }, [])
 
-  const data = [
-    {
-      id: 1,
-      survey_id: "SURV001",
-      state: "West Bengal",
-      district: "Darjeeling",
-      sub_division: "Kurseong",
-      block: "Mirik",
-      gp: "Gopal Dhura",
-      village: "Tea Garden Village",
-      house_number: "001",
-      latitude: 26.88812345,
-      longitude: 88.26789012,
-      family_income: 15000.50,
-    },
-    {
-      id: 2,
-      survey_id: "SURV002",
-      state: "West Bengal",
-      district: "Kalimpong",
-      sub_division: "Kalimpong I",
-      block: "Kalimpong Block",
-      gp: "Kalimpong GP",
-      village: "Hill Top Village",
-      house_number: "002",
-      latitude: 27.05712345,
-      longitude: 88.47567890,
-      family_income: 20000.75,
-    },
-    {
-      id: 3,
-      survey_id: "SURV003",
-      state: "West Bengal",
-      district: "Jalpaiguri",
-      sub_division: "Mal",
-      block: "Matiali",
-      gp: "Matiali GP",
-      village: "Tea Workers Colony",
-      house_number: "003",
-      latitude: 26.84567890,
-      longitude: 88.12345678,
-      family_income: 18000.00,
-    },
-    {
-      id: 4,
-      survey_id: "SURV004",
-      state: "West Bengal",
-      district: "Alipurduar",
-      sub_division: "Falakata",
-      block: "Falakata",
-      gp: "Falakata GP",
-      village: "Border Village",
-      house_number: "004",
-      latitude: 26.51234567,
-      longitude: 89.34567890,
-      family_income: 17000.30,
-    },
-    {
-      id: 5,
-      survey_id: "SURV005",
-      state: "West Bengal",
-      district: "Cooch Behar",
-      sub_division: "Tufanganj",
-      block: "Tufanganj",
-      gp: "Tufanganj GP",
-      village: "Riverside Colony",
-      house_number: "005",
-      latitude: 26.35467890,
-      longitude: 89.56712345,
-      family_income: 16000.20,
-    },
-    {
-      id: 6,
-      survey_id: "SURV006",
-      state: "West Bengal",
-      district: "Malda",
-      sub_division: "Old Malda",
-      block: "Old Malda",
-      gp: "Malda GP",
-      village: "Historic Town",
-      house_number: "006",
-      latitude: 25.01234567,
-      longitude: 88.25467890,
-      family_income: 14000.80,
-    },
-    {
-      id: 7,
-      survey_id: "SURV007",
-      state: "West Bengal",
-      district: "Murshidabad",
-      sub_division: "Berhampore",
-      block: "Berhampore",
-      gp: "Berhampore GP",
-      village: "Heritage Colony",
-      house_number: "007",
-      latitude: 24.12345678,
-      longitude: 88.87654321,
-      family_income: 19000.90,
-    },
-    {
-      id: 8,
-      survey_id: "SURV008",
-      state: "West Bengal",
-      district: "Nadia",
-      sub_division: "Krishnanagar",
-      block: "Krishnanagar",
-      gp: "Krishnanagar GP",
-      village: "Artisan Village",
-      house_number: "008",
-      latitude: 23.98765432,
-      longitude: 88.43210987,
-      family_income: 14500.40,
-    },
-    {
-      id: 9,
-      survey_id: "SURV009",
-      state: "West Bengal",
-      district: "Bardhaman",
-      sub_division: "Durgapur",
-      block: "Durgapur",
-      gp: "Durgapur GP",
-      village: "Industrial Town",
-      house_number: "009",
-      latitude: 23.45432109,
-      longitude: 87.65498765,
-      family_income: 21000.00,
-    },
-    {
-      id: 10,
-      survey_id: "SURV010",
-      state: "West Bengal",
-      district: "Hooghly",
-      sub_division: "Chinsurah",
-      block: "Chinsurah",
-      gp: "Chinsurah GP",
-      village: "Historic Hamlet",
-      house_number: "010",
-      latitude: 22.34567890,
-      longitude: 87.98765432,
-      family_income: 18000.50,
-    },
-    {
-      id: 11,
-      survey_id: "SURV011",
-      state: "West Bengal",
-      district: "Howrah",
-      sub_division: "Uluberia",
-      block: "Uluberia",
-      gp: "Uluberia GP",
-      village: "Trade Hub",
-      house_number: "011",
-      latitude: 22.13456789,
-      longitude: 88.87654321,
-      family_income: 22500.75,
-    },
-    {
-      id: 12,
-      survey_id: "SURV012",
-      state: "West Bengal",
-      district: "Kolkata",
-      sub_division: "Central Kolkata",
-      block: "Kolkata Municipal Corporation",
-      gp: "Kolkata GP",
-      village: "Metro City",
-      house_number: "012",
-      latitude: 22.572646,
-      longitude: 88.363895,
-      family_income: 30000.90,
-    },
-    {
-      id: 13,
-      survey_id: "SURV013",
-      state: "West Bengal",
-      district: "South 24 Parganas",
-      sub_division: "Diamond Harbour",
-      block: "Diamond Harbour",
-      gp: "Diamond Harbour GP",
-      village: "Coastal Town",
-      house_number: "013",
-      latitude: 21.98765432,
-      longitude: 88.76543210,
-      family_income: 16000.60,
-    },
-    {
-      id: 14,
-      survey_id: "SURV014",
-      state: "West Bengal",
-      district: "North 24 Parganas",
-      sub_division: "Barrackpore",
-      block: "Barrackpore",
-      gp: "Barrackpore GP",
-      village: "Military Cantonment",
-      house_number: "014",
-      latitude: 22.34567890,
-      longitude: 88.76543210,
-      family_income: 19000.80,
-    },
-    {
-      id: 15,
-      survey_id: "SURV015",
-      state: "West Bengal",
-      district: "Bankura",
-      sub_division: "Bankura",
-      block: "Bankura",
-      gp: "Bankura GP",
-      village: "Handicraft Town",
-      house_number: "015",
-      latitude: 23.42109876,
-      longitude: 87.21098765,
-      family_income: 15500.90,
-    },
-    {
-      id: 16,
-      survey_id: "SURV016",
-      state: "West Bengal",
-      district: "Purulia",
-      sub_division: "Purulia Sadar",
-      block: "Purulia Block",
-      gp: "Purulia GP",
-      village: "Tribal Hamlet",
-      house_number: "016",
-      latitude: 23.45678909,
-      longitude: 86.87654321,
-      family_income: 14000.30,
-    },
-    {
-      id: 17,
-      survey_id: "SURV017",
-      state: "West Bengal",
-      district: "Birbhum",
-      sub_division: "Bolpur",
-      block: "Bolpur",
-      gp: "Bolpur GP",
-      village: "Santiniketan",
-      house_number: "017",
-      latitude: 23.66678909,
-      longitude: 87.45678909,
-      family_income: 17000.10,
+  // API calls
+  const fetchDistricts = async () => {
+    try {
+      const response = await fetch(
+        "https://tea-garden-survey-api-stagging.vercel.app/api/dropdownList/getDistrictsByState",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            state_id: stateId,
+          }),
+        },
+      )
+
+      const data = await response.json()
+      if (data.success) {
+        setDistricts(data.data)
+      }
+    } catch (error) {
+      console.error("Error fetching districts:", error)
     }
-  ];
+  }
 
+  const fetchSubdivisions = async (distId) => {
+    try {
+      const response = await fetch(
+        "https://tea-garden-survey-api-stagging.vercel.app/api/dropdownList/getSubDivisionsByDistrict",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            dist_id: Number.parseInt(distId),
+          }),
+        },
+      )
+
+      const data = await response.json()
+      if (data.success) {
+        setSubdivisions(data.data)
+      }
+    } catch (error) {
+      console.error("Error fetching subdivisions:", error)
+    }
+  }
+
+  const fetchBlocks = async (subDivId) => {
+    try {
+      const response = await fetch(
+        "https://tea-garden-survey-api-stagging.vercel.app/api/dropdownList/getBlocksBySubDivision",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            sub_div_id: Number.parseInt(subDivId),
+          }),
+        },
+      )
+
+      const data = await response.json()
+      if (data.success) {
+        setBlocks(data.data)
+      }
+    } catch (error) {
+      console.error("Error fetching blocks:", error)
+    }
+  }
+
+  const fetchGps = async (blkId) => {
+    try {
+      const response = await fetch("https://tea-garden-survey-api-stagging.vercel.app/api/dropdownList/getGPsByBlock", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          blk_id: Number.parseInt(blkId),
+        }),
+      })
+
+      const data = await response.json()
+      if (data.success) {
+        setGps(data.data)
+      }
+    } catch (error) {
+      console.error("Error fetching GPs:", error)
+    }
+  }
+
+  const fetchSurveyData = async () => {
+    try {
+      setIsLoading(true);
+
+      // Get the current date
+      const currentDate = format(new Date(), "yyyy-MM-dd");
+
+      // Format dates for API
+      const formattedStartDate = startDate ? format(startDate, "yyyy-MM-dd") : currentDate;
+      const formattedEndDate = endDate ? format(endDate, "yyyy-MM-dd") : currentDate;
+
+      const response = await fetch(
+        "https://tea-garden-survey-api-stagging.vercel.app/api/dropdownList/getTotalHouseholdsSurveyedDetails",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            state_id: stateId,
+            district_id: districtId ? Number.parseInt(districtId) : 0,
+            subdivision_id: subdivisionId ? Number.parseInt(subdivisionId) : 0,
+            block_id: blockId ? Number.parseInt(blockId) : 0,
+            village_id: 0, // Not used in the filter UI
+            start_date: formattedStartDate,
+            end_date: formattedEndDate,
+          }),
+        }
+      );
+
+      const data = await response.json();
+      if (data.success) {
+        setSurveyData(data.data);
+        console.log("survay", data.data);
+      } else {
+        setSurveyData([]);
+      }
+    } catch (error) {
+      console.error("Error fetching survey data:", error);
+      setSurveyData([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+
+
+  // Event handlers
+  const handleDistrictChange = (value) => {
+    setDistrictId(value)
+    setSubdivisionId("")
+    setBlockId("")
+    setGpId("")
+
+    if (value) {
+      fetchSubdivisions(value)
+    } else {
+      setSubdivisions([])
+    }
+  }
+
+  const handleSubdivisionChange = (value) => {
+    setSubdivisionId(value)
+    setBlockId("")
+    setGpId("")
+
+    if (value) {
+      fetchBlocks(value)
+    } else {
+      setBlocks([])
+    }
+  }
+
+  const handleBlockChange = (value) => {
+    setBlockId(value)
+    setGpId("")
+
+    if (value) {
+      fetchGps(value)
+    } else {
+      setGps([])
+    }
+  }
+
+  const handleGpChange = (value) => {
+    setGpId(value)
+  }
+
+  const handleSearch = () => {
+    fetchSurveyData()
+  }
+
+  const clearFilters = () => {
+    setStartDate(undefined)
+    setEndDate(undefined)
+    setDistrictId("")
+    setSubdivisionId("")
+    setBlockId("")
+    setGpId("")
+    setSubdivisions([])
+    setBlocks([])
+    setGps([])
+  }
+
+
+
+  // Table columns configuration
   const columns = [
     {
       accessorKey: "survey_id",
       header: "Survey ID",
+    },
+    {
+      accessorKey: "state",
+      header: "State",
     },
     {
       accessorKey: "district",
@@ -325,14 +302,21 @@ export default function Page() {
     {
       accessorKey: "gp",
       header: "Gram Panchayat",
+      cell: ({ row }) => row.original.gp || "N/A",
     },
     {
       accessorKey: "village",
       header: "Village",
+      cell: ({ row }) => row.original.village || "N/A",
     },
     {
       accessorKey: "house_number",
       header: "House Number",
+    },
+    {
+      accessorKey: "family_income",
+      header: "Family Income",
+      cell: ({ row }) => `₹${Number(row.original.family_income).toLocaleString()}`,
     },
     {
       id: "actions",
@@ -343,40 +327,17 @@ export default function Page() {
           size="sm"
           className="cursor-pointer"
           onClick={() => {
-            setSelectedRow(row?.original); // Set the selected row data
-            setIsDialogOpen(true); // Open the dialog
+            setSelectedRow(row.original);
+            setIsDialogOpen(true);
           }}
         >
-          <Eye className="text-cyan-600" />View
+          <Eye className="text-cyan-600 mr-2 h-4 w-4" />
+          View
         </Button>
       ),
     },
-  ]
+  ];
 
-  const clearFilters = () => {
-    setStartDate(undefined);
-    setEndDate(undefined);
-    setDistrict("");
-    setSubdivision("");
-    setBlock("");
-    setGP("");
-    setVillage("");
-  };
-
-  const hasActiveFilters = !!(startDate || endDate || district || subdivision || block || gp || village);
-
-
-  const handleSearch = () => {
-    // Implement the logic to filter data based on the selected filters
-    console.log({
-      startDate,
-      endDate,
-      district,
-      subdivision,
-      block,
-      village,
-    });
-  };
   return (
     <SidebarProvider
       style={{
@@ -422,63 +383,62 @@ export default function Page() {
                 </div>
 
                 {/* District Dropdown */}
-                <Select value={district} onValueChange={setDistrict}>
+                <Select value={districtId} onValueChange={handleDistrictChange}>
                   <SelectTrigger className="w-full sm:w-[250px]">
                     <SelectValue placeholder="Select District" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Darjeeling">Darjeeling</SelectItem>
-                    <SelectItem value="Kalimpong">Kalimpong</SelectItem>
-                    <SelectItem value="Jalpaiguri">Jalpaiguri</SelectItem>
-                    <SelectItem value="Alipurduar">Alipurduar</SelectItem>
+                    <SelectItem value="all">All Districts</SelectItem>
+                    {districts.map((district) => (
+                      <SelectItem key={district.id} value={district.id.toString()}>
+                        {district.district_name}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
-                <Select value={district} onValueChange={setDistrict}>
+
+                {/* Subdivision Dropdown */}
+                <Select value={subdivisionId} onValueChange={handleSubdivisionChange} disabled={!districtId}>
                   <SelectTrigger className="w-full sm:w-[250px]">
                     <SelectValue placeholder="Select Sub-Division" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Darjeeling">Darjeeling</SelectItem>
-                    <SelectItem value="Kalimpong">Kalimpong</SelectItem>
-                    <SelectItem value="Jalpaiguri">Jalpaiguri</SelectItem>
-                    <SelectItem value="Alipurduar">Alipurduar</SelectItem>
+                    <SelectItem value="all">All Subdivisions</SelectItem>
+                    {subdivisions.map((subdivision) => (
+                      <SelectItem key={subdivision.id} value={subdivision.id.toString()}>
+                        {subdivision.sub_division_name}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
 
                 {/* Block Dropdown */}
-                <Select value={block} onValueChange={setBlock}>
+                <Select value={blockId} onValueChange={handleBlockChange} disabled={!subdivisionId}>
                   <SelectTrigger className="w-full sm:w-[250px]">
                     <SelectValue placeholder="Select Block" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Mirik">Mirik</SelectItem>
-                    <SelectItem value="Kalimpong Block">Kalimpong Block</SelectItem>
-                    <SelectItem value="Matiali">Matiali</SelectItem>
-                    <SelectItem value="Falakata">Falakata</SelectItem>
+                    <SelectItem value="all">All Blocks</SelectItem>
+                    {blocks.map((block) => (
+                      <SelectItem key={block.id} value={block.id.toString()}>
+                        {block.block_name}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
 
                 {/* GP Dropdown */}
-                <Select value={gp} onValueChange={setGP}>
+                <Select value={gpId} onValueChange={handleGpChange} disabled={!blockId}>
                   <SelectTrigger className="w-full sm:w-[250px]">
                     <SelectValue placeholder="Select GP" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Gopal Dhura">Gopal Dhura</SelectItem>
-                    <SelectItem value="Kalimpong GP">Kalimpong GP</SelectItem>
-                    <SelectItem value="Matiali GP">Matiali GP</SelectItem>
-                    <SelectItem value="Falakata GP">Falakata GP</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Select value={gp} onValueChange={setGP}>
-                  <SelectTrigger className="w-full sm:w-[250px]">
-                    <SelectValue placeholder="Select Village" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Gopal Dhura">Gopal Dhura</SelectItem>
-                    <SelectItem value="Kalimpong GP">Kalimpong GP</SelectItem>
-                    <SelectItem value="Matiali GP">Matiali GP</SelectItem>
-                    <SelectItem value="Falakata GP">Falakata GP</SelectItem>
+                    <SelectItem value="all">All GPs</SelectItem>
+                    {gps.map((gp) => (
+                      <SelectItem key={gp.id} value={gp.id.toString()}>
+                        {gp.gp_name}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
 
@@ -490,10 +450,24 @@ export default function Page() {
                   <Search className="h-4 w-4 mr-2" />
                   Search
                 </Button>
+
+                {/* Clear Filters Button */}
+                <Button variant="outline" className="mx-auto px-8 w-full sm:w-auto" onClick={clearFilters}>
+                  Clear Filters
+                </Button>
               </div>
 
-              <DataTable data={data} columns={columns} />
+              {/* Data Table */}
+              <div className="border rounded-lg overflow-hidden">
+                <div className="mt-0 overflow-hidden rounded-t-lg">
+                  <div className="bg-gradient-to-r from-cyan-600 to-cyan-400 px-6 py-3">
+                    <h2 className="text-l font-bold text-white">Household Survey Data</h2>
+                  </div>
+                </div>
+                <DataTable data={surveyData} columns={columns} isLoading={isLoading} />
+              </div>
 
+              {/* Detail Dialog */}
               <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogContent className="w-[80%] min-w-[80%] h-auto p-0">
                   <DialogHeader className="flex items-center bg-cyan-600 text-white p-4 rounded-t-lg">
@@ -501,8 +475,8 @@ export default function Page() {
                   </DialogHeader>
 
                   {/* Main Content with Two Columns */}
-                  <div className="grid grid-cols-1 xl:grid-cols-2 w-full ">
-                    {/* Left Side: Survey Details (Scrollable) */}
+                  <div className="grid grid-cols-1 xl:grid-cols-2 w-full">
+                    {/* Left Side: Survey Details */}
                     <div className="overflow-y-auto px-8 py-6">
                       <div className="grid grid-cols-2 gap-2 text-lg">
                         <div className="font-semibold">Survey ID:</div>
@@ -521,16 +495,16 @@ export default function Page() {
                         <div>{selectedRow?.block}</div>
 
                         <div className="font-semibold">Gram Panchayat:</div>
-                        <div>{selectedRow?.gp}</div>
+                        <div>{selectedRow?.gp || "N/A"}</div>
 
                         <div className="font-semibold">Village:</div>
-                        <div>{selectedRow?.village}</div>
+                        <div>{selectedRow?.village || "N/A"}</div>
 
                         <div className="font-semibold">House Number:</div>
                         <div>{selectedRow?.house_number}</div>
 
                         <div className="font-semibold">Family Income:</div>
-                        <div>₹{selectedRow?.family_income.toLocaleString()}</div>
+                        <div>₹{Number(selectedRow?.family_income).toLocaleString()}</div>
 
                         {selectedRow?.latitude && selectedRow?.longitude && (
                           <>
@@ -544,11 +518,11 @@ export default function Page() {
                       </div>
                     </div>
 
-                    {/* Right Side: Map (Fixed) */}
+                    {/* Right Side: Map */}
                     {selectedRow?.latitude && selectedRow?.longitude && customMarkerIcon && (
                       <div className="flex items-center justify-center p-6">
                         <MapContainer
-                          center={[selectedRow?.latitude, selectedRow?.longitude]}
+                          center={[Number(selectedRow?.latitude), Number(selectedRow?.longitude)]}
                           zoom={13}
                           style={{ height: "90%", width: "100%", borderRadius: "8px" }}
                         >
@@ -557,8 +531,8 @@ export default function Page() {
                             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                           />
                           <Marker
-                            position={[selectedRow?.latitude, selectedRow?.longitude]}
-                            icon={customMarkerIcon} // Use the custom marker icon
+                            position={[Number(selectedRow?.latitude), Number(selectedRow?.longitude)]}
+                            icon={customMarkerIcon}
                           >
                             <Popup>
                               <strong>Household Location</strong>
@@ -579,6 +553,5 @@ export default function Page() {
         </div>
       </SidebarInset>
     </SidebarProvider>
-  );
+  )
 }
-
