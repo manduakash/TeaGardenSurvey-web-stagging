@@ -209,6 +209,7 @@ export default function SurveyDashboard() {
 
   useEffect(() => {
     // Call the API to fetch survey data when the page loads
+    fetchDistricts()
     fetchSurveyData()
   }, [])
 
@@ -272,12 +273,16 @@ export default function SurveyDashboard() {
   // Table columns configuration
   const columns = [
     {
-      accessorKey: "village_name",
-      header: "Village",
+      accessorKey: "survey_id",
+      header: "Survey ID",
     },
     {
       accessorKey: "name",
       header: "Name",
+    },
+    {
+      accessorKey: "village_name",
+      header: "Village",
     },
     {
       accessorKey: "gender",
