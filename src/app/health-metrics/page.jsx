@@ -16,10 +16,9 @@ import { DatePicker } from "@/components/reusables/date-picker";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { format } from "date-fns"
 import moment from "moment";
-
 import { RiArrowUpDoubleLine } from "react-icons/ri";
 import { RiArrowDownDoubleLine } from "react-icons/ri";
-
+import { AiFillCheckCircle } from "react-icons/ai";
 
 
 export default function Page() {
@@ -311,15 +310,8 @@ export default function Page() {
         return (
           <Badge
             variant="outline"
-            className={
-              status === "High"
-                ? "text-red-500"
-                : status === "Low"
-                  ? "text-yellow-500"
-                  : "text-green-500"
-            }
           >
-            {status} {status == "High" ? <RiArrowUpDoubleLine /> : status == "Low" ? <RiArrowDownDoubleLine /> : null}
+           {status == "High" ? <RiArrowUpDoubleLine className="text-red-500" /> : status == "Low" ? <RiArrowDownDoubleLine className="text-yellow-500" /> : <AiFillCheckCircle className="text-green-500"/>} {status}
           </Badge>
         );
       }
