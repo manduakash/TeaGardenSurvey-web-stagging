@@ -54,11 +54,6 @@ export default function SurveyDashboard() {
   const [isLoading, setIsLoading] = useState(false)
   const [customMarkerIcon, setCustomMarkerIcon] = useState(null)
 
-  // Fetch districts on initial load
-  useEffect(() => {
-    fetchDistricts()
-  }, [])
-
   // Lazy load Leaflet and set the custom marker icon
   useEffect(() => {
     async function loadLeaflet() {
@@ -215,7 +210,10 @@ export default function SurveyDashboard() {
     }
   };
 
-
+  useEffect(() => {
+    // Call the API to fetch survey data when the page loads
+    fetchSurveyData();
+  }, []);
 
   // Event handlers
   const handleDistrictChange = (value) => {
@@ -337,18 +335,42 @@ export default function SurveyDashboard() {
         <div className="flex flex-1 flex-col">
           <div className="@container/main flex flex-1 flex-col gap-2">
             <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6 mx-10">
-              <div className="border rounded-lg p-4">
+              <div className="border rounded-lg p-4 flex flex-col gap-4">
+                {/* First Row */}
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 flex-wrap">
+                  {/* Start Date Selector */}
+                  <div className="flex items-center gap-2 w-full sm:w-auto">
+                    <Calendar className="h-6 w-6 text-gray-500" />
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" className="min-w-[150px]">
+                          {startDate ? format(startDate, "dd/MM/yyyy") : "Start Date"}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0">
+                        <CalendarComponent mode="single" selected={startDate} onSelect={setStartDate} initialFocus />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
 
-
-                <div className="grid grid-cols-3 gap-6 mb-6">
-
-                  <DatePicker date={startDate} setDate={setStartDate} placeholder="Pick Start Date" />
-
-                  <DatePicker date={endDate} setDate={setEndDate} placeholder="Pick End Date" />
+                  {/* End Date Selector */}
+                  <div className="flex items-center gap-2 w-full sm:w-auto">
+                    <Calendar className="h-6 w-6 text-gray-500" />
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" className="min-w-[150px]">
+                          {endDate ? format(endDate, "dd/MM/yyyy") : "End Date"}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0">
+                        <CalendarComponent mode="single" selected={endDate} onSelect={setEndDate} initialFocus />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
 
                   {/* District Dropdown */}
                   <Select value={districtId} onValueChange={handleDistrictChange}>
-                    <SelectTrigger className="w-full">
+                    <SelectTrigger className="w-full sm:w-[250px]">
                       <SelectValue placeholder="Select District" />
                     </SelectTrigger>
                     <SelectContent>
@@ -363,7 +385,7 @@ export default function SurveyDashboard() {
 
                   {/* Subdivision Dropdown */}
                   <Select value={subdivisionId} onValueChange={handleSubdivisionChange} disabled={!districtId}>
-                    <SelectTrigger className="w-full">
+                    <SelectTrigger className="w-full sm:w-[250px]">
                       <SelectValue placeholder="Select Sub-Division" />
                     </SelectTrigger>
                     <SelectContent>
@@ -375,10 +397,13 @@ export default function SurveyDashboard() {
                       ))}
                     </SelectContent>
                   </Select>
+                </div>
 
+                {/* Second Row */}
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 flex-wrap">
                   {/* Block Dropdown */}
                   <Select value={blockId} onValueChange={handleBlockChange} disabled={!subdivisionId}>
-                    <SelectTrigger className="w-full">
+                    <SelectTrigger className="w-full sm:w-[250px]">
                       <SelectValue placeholder="Select Block" />
                     </SelectTrigger>
                     <SelectContent>
@@ -393,7 +418,7 @@ export default function SurveyDashboard() {
 
                   {/* GP Dropdown */}
                   <Select value={gpId} onValueChange={handleGpChange} disabled={!blockId}>
-                    <SelectTrigger className="w-full">
+                    <SelectTrigger className="w-full sm:w-[250px]">
                       <SelectValue placeholder="Select GP" />
                     </SelectTrigger>
                     <SelectContent>
@@ -406,20 +431,17 @@ export default function SurveyDashboard() {
                     </SelectContent>
                   </Select>
 
-                </div>
-
-                <div className="flex gap-2 justify-center">
                   {/* Search Button */}
                   <Button
-                    className="bg-green-100 hover:bg-green-300 border-[1px] border-green-600 text-slate-800 px-8 cursor-pointer"
+                    className="bg-green-100 hover:bg-green-300 border-[1px] border-green-600 text-slate-800 mx-auto px-8 w-full sm:w-auto"
                     onClick={handleSearch}
-                    disabled={isLoading}
                   >
-                    {isLoading ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Loading...</> : <><Search className="h-4 w-4 mr-2" /> Search</>}
+                    <Search className="h-4 w-4 mr-2" />
+                    Search
                   </Button>
 
                   {/* Clear Filters Button */}
-                  <Button variant="secondary" className="px-8 border cursor-pointer" onClick={clearFilters}>
+                  <Button variant="outline" className="mx-auto px-8 w-full sm:w-auto" onClick={clearFilters}>
                     Clear Filters
                   </Button>
                 </div>
