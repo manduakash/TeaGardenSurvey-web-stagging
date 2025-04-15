@@ -52,7 +52,7 @@ const data = {
     // },
     {
       title: "Health Metrics",
-      url: "/health-metrics",
+      url: "/health-metrics/all",
       icon: Stethoscope,
     },
     {

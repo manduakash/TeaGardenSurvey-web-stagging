@@ -55,7 +55,7 @@ export function LoginForm({ className, ...props }) {
         const jsonData = JSON.stringify(data?.data);
         const encodedData = btoa(encodeURIComponent(jsonData));
 
-        Cookies.save("userData", encodedData, { path: "/", maxAge: 3600 });
+        Cookies.save("userData", encodedData);
         router.push("/dashboard");
       } else {
         toast(

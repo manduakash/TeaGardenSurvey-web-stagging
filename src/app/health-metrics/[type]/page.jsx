@@ -20,6 +20,7 @@ import { RiArrowUpDoubleLine } from "react-icons/ri";
 import { RiArrowDownDoubleLine } from "react-icons/ri";
 import { AiFillCheckCircle } from "react-icons/ai";
 import { useParams } from 'next/navigation';
+import { getUserData } from "@/utils/cookies";
 
 export default function Page() {
   const params = useParams();
@@ -54,20 +55,8 @@ export default function Page() {
 
 
   useEffect(() => {
-    if (type_of_search) {
-      if (type_of_search == "sam") {
-        setNutritionStatus("SAM");
-        fetchHealthSurveyData();
-      } else if (type_of_search == "mam") {
-        setNutritionStatus("MAM");
-        fetchHealthSurveyData();
-      } else {
-        fetchHealthSurveyData();
-      }
-
-    }
+   
   }, [type_of_search])
-
 
   // API calls
   const fetchDistricts = async () => {
@@ -88,16 +77,13 @@ export default function Page() {
       const data = await response.json()
       if (data.success) {
         setDistricts(data.data)
+        const dist_id = getUserData().DistrictID ?? 0;
+        setDistrictId(dist_id.toString())
       }
     } catch (error) {
       console.error("Error fetching districts:", error)
     }
   }
-
-  // Fetch districts on initial load
-  useEffect(() => {
-    fetchDistricts()
-  }, [])
 
   const fetchSubdivisions = async (distId) => {
     try {
@@ -122,6 +108,51 @@ export default function Page() {
       console.error("Error fetching subdivisions:", error)
     }
   }
+
+  // Fetch districts on initial load
+  useEffect(() => {
+
+    const fixUsersJurisdiction = async () => {
+      const userDistrictId = getUserData().DistrictID ?? 0;
+      const userSubDivisionId = getUserData().SubDivisionID ?? 0;
+      const userBlockId = getUserData().BlockID ?? 0;
+      const userGPId = getUserData().GPID ?? 0
+
+      if (userDistrictId) {
+        await fetchDistricts();
+        setDistrictId(userDistrictId.toString());
+      }
+
+      if (userSubDivisionId) {
+        await fetchSubdivisions(userDistrictId);
+        setSubdivisionId(userSubDivisionId.toString())
+      }
+
+      if (userBlockId) {
+        await fetchBlocks(userSubDivisionId);
+        setBlockId(userBlockId.toString())
+      }
+
+      if (userGPId) {
+        await fetchGps(userBlockId);
+        setGpId(userGPId.toString())
+      }
+
+      if (type_of_search) {
+        if (type_of_search == "sam") {
+          setNutritionStatus("SAM");
+          fetchHealthSurveyData();
+        } else if (type_of_search == "mam") {
+          setNutritionStatus("MAM");
+          fetchHealthSurveyData();
+        } else {
+          fetchHealthSurveyData();
+        }
+  
+      }
+    }
+    fixUsersJurisdiction();
+  }, [type_of_search])
 
   const fetchBlocks = async (subDivId) => {
     try {
@@ -175,13 +206,13 @@ export default function Page() {
       const today = new Date();
       const start = new Date();
       start.setDate(today.getDate() - 30);
-    
+
       setStartDate(start);
       setEndDate(today);
 
       // Format dates for API
-      const formattedStartDate = startDate ? startDate : today;
-      const formattedEndDate = endDate ? endDate : start;
+      const formattedStartDate = startDate ? startDate : start;
+      const formattedEndDate = endDate ? endDate : today;
 
       const response = await fetch(
         "https://tea-garden-survey-api-stagging.vercel.app/api/dropdownList/getHealthDetailsWithFilters",
@@ -221,7 +252,6 @@ export default function Page() {
       setIsLoading(false);
     }
   };
-
 
   // Event handlers
   const handleDistrictChange = (value) => {
@@ -456,7 +486,7 @@ export default function Page() {
 
                   {/* GP Dropdown */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Select Gramp-Panchayat</label>
+                    <label className="block text-sm font-medium text-gray-700">Select Gram-Panchayat</label>
                     <Select value={gpId} onValueChange={handleGpChange} disabled={!blockId}>
                       <SelectTrigger className="w-full hover:bg-slate-100">
                         <SelectValue placeholder="Select GP" />

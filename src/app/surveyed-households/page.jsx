@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { format } from "date-fns"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { DatePicker } from "@/components/reusables/date-picker"
+import { getUserData } from "@/utils/cookies"
 
 // Dynamically import react-leaflet components with SSR disabled
 const MapContainer = dynamic(() => import("react-leaflet").then((mod) => mod.MapContainer), {
@@ -53,6 +54,44 @@ export default function SurveyDashboard() {
   // Loading states
   const [isLoading, setIsLoading] = useState(false)
   const [customMarkerIcon, setCustomMarkerIcon] = useState(null)
+
+
+  // Fetch districts on initial load
+  useEffect(() => {
+
+    const fixUsersJurisdiction = async () => {
+      const userDistrictId = getUserData().DistrictID ?? 0;
+      const userSubDivisionId = getUserData().SubDivisionID ?? 0;
+      const userBlockId = getUserData().BlockID ?? 0;
+      const userGPId = getUserData().GPID ?? 0
+
+      if (userDistrictId) {
+        await fetchDistricts();
+        setDistrictId(userDistrictId.toString());
+      }
+
+      if (userSubDivisionId) {
+        await fetchSubdivisions(userDistrictId);
+        setSubdivisionId(userSubDivisionId.toString())
+      }
+
+      if (userBlockId) {
+        await fetchBlocks(userSubDivisionId);
+        setBlockId(userBlockId.toString())
+      }
+
+      if (userGPId) {
+        await fetchGps(userBlockId);
+        setGpId(userGPId.toString())
+      }
+
+
+      await fetchSurveyData();
+
+    }
+
+    fixUsersJurisdiction();
+  }, [])
 
   // Lazy load Leaflet and set the custom marker icon
   useEffect(() => {
@@ -165,16 +204,21 @@ export default function SurveyDashboard() {
     }
   }
 
+
   const fetchSurveyData = async () => {
     try {
       setIsLoading(true);
 
-      // Get the current date
-      const currentDate = format(new Date(), "yyyy-MM-dd");
+      const today = new Date();
+      const start = new Date();
+      start.setDate(today.getDate() - 30);
+
+      setStartDate(start);
+      setEndDate(today);
 
       // Format dates for API
-      const formattedStartDate = startDate ? format(startDate, "yyyy-MM-dd") : currentDate;
-      const formattedEndDate = endDate ? format(endDate, "yyyy-MM-dd") : currentDate;
+      const formattedStartDate = startDate ? startDate : start;
+      const formattedEndDate = endDate ? endDate : today;
 
       const response = await fetch(
         "https://tea-garden-survey-api-stagging.vercel.app/api/dropdownList/getTotalHouseholdsSurveyedDetails",
@@ -213,7 +257,6 @@ export default function SurveyDashboard() {
   useEffect(() => {
     // Call the API to fetch survey data when the page loads
     fetchDistricts();
-    fetchSurveyData();
   }, []);
 
   // Event handlers
@@ -336,161 +379,114 @@ export default function SurveyDashboard() {
         <div className="flex flex-1 flex-col">
           <div className="@container/main flex flex-1 flex-col gap-2">
             <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6 mx-10">
-              <div className="border rounded-lg p-4 flex flex-col gap-4">
-                {/* First Row */}
-                <div className="border rounded-lg p-4">
-                  <div className="grid grid-cols-4 gap-6 mb-6">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">Select From Date</label>
-                      <DatePicker date={startDate} setDate={setStartDate} placeholder="Pick a Date" />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">Select To Date</label>
-                      <DatePicker date={endDate} setDate={setEndDate} placeholder="Pick a Date" />
-                    </div>
-
-                    {/* District Dropdown */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">Select District</label>
-                      <Select value={districtId} onValueChange={handleDistrictChange}>
-                        <SelectTrigger className="w-full hover:bg-slate-100">
-                          <SelectValue placeholder="Select District" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="0">All Districts</SelectItem>
-                          {districts.map((district) => (
-                            <SelectItem key={district.id} value={district.id.toString()}>
-                              {district.district_name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    {/* Subdivision Dropdown */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">Select Sub-Division</label>
-                      <Select value={subdivisionId} onValueChange={handleSubdivisionChange} disabled={!districtId}>
-                        <SelectTrigger className="w-full hover:bg-slate-100">
-                          <SelectValue placeholder="Select Sub-Division" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="0">All Subdivisions</SelectItem>
-                          {subdivisions.map((subdivision) => (
-                            <SelectItem key={subdivision.id} value={subdivision.id.toString()}>
-                              {subdivision.sub_division_name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    {/* Block Dropdown */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">Select Block</label>
-                      <Select value={blockId} onValueChange={handleBlockChange} disabled={!subdivisionId}>
-                        <SelectTrigger className="w-full hover:bg-slate-100">
-                          <SelectValue placeholder="Select Block" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="0">All Blocks</SelectItem>
-                          {blocks.map((block) => (
-                            <SelectItem key={block.id} value={block.id.toString()}>
-                              {block.block_name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    {/* GP Dropdown */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">Select Gramp-Panchayat</label>
-                      <Select value={gpId} onValueChange={handleGpChange} disabled={!blockId}>
-                        <SelectTrigger className="w-full hover:bg-slate-100">
-                          <SelectValue placeholder="Select GP" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="0">All GPs</SelectItem>
-                          {gps.map((gp) => (
-                            <SelectItem key={gp.id} value={gp.id.toString()}>
-                              {gp.gp_name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
+              {/* First Row */}
+              <div className="border rounded-lg p-4">
+                <div className="grid grid-cols-4 gap-6 mb-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Select From Date</label>
+                    <DatePicker date={startDate} setDate={setStartDate} placeholder="Pick a Date" />
                   </div>
 
-                  <div className="flex gap-2 justify-center">
-                    {/* Search Button */}
-                    <Button
-                      className="bg-green-100 hover:bg-green-300 border-[1px] border-green-600 text-slate-800 px-8 cursor-pointer"
-                      onClick={handleSearch}
-                      disabled={isLoading}
-                    >
-                      {isLoading ? (
-                        <>
-                          <Loader2 className="h-4 w-4 mr-2 animate-spin" /> Loading...
-                        </>
-                      ) : (
-                        <>
-                          <Search className="h-4 w-4 mr-2" /> Search
-                        </>
-                      )}
-                    </Button>
-
-                    {/* Clear Filters Button */}
-                    <Button variant="secondary" className="px-8 border cursor-pointer" onClick={clearFilters}>
-                      Clear Filters
-                    </Button>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Select To Date</label>
+                    <DatePicker date={endDate} setDate={setEndDate} placeholder="Pick a Date" />
                   </div>
-                </div>
 
-                {/* Second Row */}
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 flex-wrap">
+                  {/* District Dropdown */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Select District</label>
+                    <Select value={districtId} onValueChange={handleDistrictChange}>
+                      <SelectTrigger className="w-full hover:bg-slate-100">
+                        <SelectValue placeholder="Select District" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="0">All Districts</SelectItem>
+                        {districts.map((district) => (
+                          <SelectItem key={district.id} value={district.id.toString()}>
+                            {district.district_name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Subdivision Dropdown */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Select Sub-Division</label>
+                    <Select value={subdivisionId} onValueChange={handleSubdivisionChange} disabled={!districtId}>
+                      <SelectTrigger className="w-full hover:bg-slate-100">
+                        <SelectValue placeholder="Select Sub-Division" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="0">All Subdivisions</SelectItem>
+                        {subdivisions.map((subdivision) => (
+                          <SelectItem key={subdivision.id} value={subdivision.id.toString()}>
+                            {subdivision.sub_division_name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
                   {/* Block Dropdown */}
-                  <Select value={blockId} onValueChange={handleBlockChange} disabled={!subdivisionId}>
-                    <SelectTrigger className="w-full sm:w-[250px]">
-                      <SelectValue placeholder="Select Block" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Blocks</SelectItem>
-                      {blocks.map((block) => (
-                        <SelectItem key={block.id} value={block.id.toString()}>
-                          {block.block_name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Select Block</label>
+                    <Select value={blockId} onValueChange={handleBlockChange} disabled={!subdivisionId}>
+                      <SelectTrigger className="w-full hover:bg-slate-100">
+                        <SelectValue placeholder="Select Block" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="0">All Blocks</SelectItem>
+                        {blocks.map((block) => (
+                          <SelectItem key={block.id} value={block.id.toString()}>
+                            {block.block_name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
 
                   {/* GP Dropdown */}
-                  <Select value={gpId} onValueChange={handleGpChange} disabled={!blockId}>
-                    <SelectTrigger className="w-full sm:w-[250px]">
-                      <SelectValue placeholder="Select GP" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All GPs</SelectItem>
-                      {gps.map((gp) => (
-                        <SelectItem key={gp.id} value={gp.id.toString()}>
-                          {gp.gp_name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Select Gram-Panchayat</label>
+                    <Select value={gpId} onValueChange={handleGpChange} disabled={!blockId}>
+                      <SelectTrigger className="w-full hover:bg-slate-100">
+                        <SelectValue placeholder="Select GP" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="0">All GPs</SelectItem>
+                        {gps.map((gp) => (
+                          <SelectItem key={gp.id} value={gp.id.toString()}>
+                            {gp.gp_name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
 
+
+                </div>
+
+                <div className="flex gap-2 justify-center">
                   {/* Search Button */}
                   <Button
-                    className="bg-green-100 hover:bg-green-300 border-[1px] border-green-600 text-slate-800 mx-auto px-8 w-full sm:w-auto"
+                    className="bg-green-100 hover:bg-green-300 border-[1px] border-green-600 text-slate-800 px-8 cursor-pointer"
                     onClick={handleSearch}
+                    disabled={isLoading}
                   >
-                    <Search className="h-4 w-4 mr-2" />
-                    Search
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" /> Loading...
+                      </>
+                    ) : (
+                      <>
+                        <Search className="h-4 w-4 mr-2" /> Search
+                      </>
+                    )}
                   </Button>
 
                   {/* Clear Filters Button */}
-                  <Button variant="outline" className="mx-auto px-8 w-full sm:w-auto" onClick={clearFilters}>
+                  <Button variant="secondary" className="px-8 border cursor-pointer" onClick={clearFilters}>
                     Clear Filters
                   </Button>
                 </div>
