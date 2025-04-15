@@ -10,20 +10,320 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { DataTable } from "@/components/data-tables/reusable-datatable";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Eye } from "lucide-react";
-import { useState } from "react";
+import { Search, Eye, Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { DatePicker } from "@/components/reusables/date-picker";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { format } from "date-fns"
+import moment from "moment";
+
+import { RiArrowUpDoubleLine } from "react-icons/ri";
+import { RiArrowDownDoubleLine } from "react-icons/ri";
+
+
 
 export default function Page() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedRow, setSelectedRow] = useState(null);
+  const [selectedRow, setSelectedRow] = useState(null)
+
+  // Date filter states
+  const [startDate, setStartDate] = useState(undefined)
+  const [endDate, setEndDate] = useState(undefined)
+
+  // Location filter states
+  const [stateId, setStateId] = useState(1) // Default to West Bengal (ID: 1)
+  const [districtId, setDistrictId] = useState("")
+  const [subdivisionId, setSubdivisionId] = useState("")
+  const [blockId, setBlockId] = useState("")
+  const [gpId, setGpId] = useState("")
+
+  // Data states
+  const [districts, setDistricts] = useState([])
+  const [subdivisions, setSubdivisions] = useState([])
+  const [blocks, setBlocks] = useState([])
+  const [gps, setGps] = useState([])
+  const [surveyData, setSurveyData] = useState([])
+  const [isLoading, setIsLoading] = useState(false)
+
+  const [nutritionStatus, setNutritionStatus] = useState("ALL")
+  const [bpStatus, setBpStatus] = useState("ALL")
+  const [bloodSugar, setBloodSugar] = useState("ALL")
+  const [gender, setGender] = useState("ALL")
+  const [ageGroup, setAgeGroup] = useState("ALL")
+
+
+  // API calls
+  const fetchDistricts = async () => {
+    try {
+      const response = await fetch(
+        "https://tea-garden-survey-api-stagging.vercel.app/api/dropdownList/getDistrictsByState",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            state_id: stateId,
+          }),
+        },
+      )
+
+      const data = await response.json()
+      if (data.success) {
+        setDistricts(data.data)
+      }
+    } catch (error) {
+      console.error("Error fetching districts:", error)
+    }
+  }
+
+  // Fetch districts on initial load
+  useEffect(() => {
+    fetchDistricts()
+  }, [])
+
+  const fetchSubdivisions = async (distId) => {
+    try {
+      const response = await fetch(
+        "https://tea-garden-survey-api-stagging.vercel.app/api/dropdownList/getSubDivisionsByDistrict",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            dist_id: Number.parseInt(distId),
+          }),
+        },
+      )
+
+      const data = await response.json()
+      if (data.success) {
+        setSubdivisions(data.data)
+      }
+    } catch (error) {
+      console.error("Error fetching subdivisions:", error)
+    }
+  }
+
+  const fetchBlocks = async (subDivId) => {
+    try {
+      const response = await fetch(
+        "https://tea-garden-survey-api-stagging.vercel.app/api/dropdownList/getBlocksBySubDivision",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            sub_div_id: Number.parseInt(subDivId),
+          }),
+        },
+      )
+
+      const data = await response.json()
+      if (data.success) {
+        setBlocks(data.data)
+      }
+    } catch (error) {
+      console.error("Error fetching blocks:", error)
+    }
+  }
+
+  const fetchGps = async (blkId) => {
+    try {
+      const response = await fetch("https://tea-garden-survey-api-stagging.vercel.app/api/dropdownList/getGPsByBlock", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          blk_id: Number.parseInt(blkId),
+        }),
+      })
+
+      const data = await response.json()
+      if (data.success) {
+        setGps(data.data)
+      }
+    } catch (error) {
+      console.error("Error fetching GPs:", error)
+    }
+  }
+
+  const fetchHealthSurveyData = async () => {
+    try {
+      setIsLoading(true);
+
+      // Get the current date
+      const currentDate = format(new Date(), "yyyy-MM-dd");
+
+      // Format dates for API
+      const formattedStartDate = startDate ? format(startDate, "yyyy-MM-dd") : currentDate;
+      const formattedEndDate = endDate ? format(endDate, "yyyy-MM-dd") : currentDate;
+
+      const response = await fetch(
+        "https://tea-garden-survey-api-stagging.vercel.app/api/dropdownList/getHealthDetailsWithFilters",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            state_id: stateId,
+            district_id: districtId ? Number.parseInt(districtId) : 0,
+            subdivision_id: subdivisionId ? Number.parseInt(subdivisionId) : 0,
+            block_id: blockId ? Number.parseInt(blockId) : 0,
+            village_id: 0,
+            start_date: formattedStartDate,
+            end_date: formattedEndDate,
+            nutrition_status: nutritionStatus,
+            bp_status: bpStatus,
+            blood_sugar: bloodSugar,
+            gender: gender,
+            household_id: 0,
+            age_group: ageGroup
+          }),
+        }
+      );
+
+      const data = await response.json();
+      if (data.success) {
+        setSurveyData(data.data);
+      } else {
+        setSurveyData([]);
+      }
+    } catch (error) {
+      console.error("Error fetching survey data:", error);
+      setSurveyData([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+
+  // Event handlers
+  const handleDistrictChange = (value) => {
+    setDistrictId(value)
+    setSubdivisionId("")
+    setBlockId("")
+    setGpId("")
+
+    if (value) {
+      fetchSubdivisions(value)
+    } else {
+      setSubdivisions([])
+    }
+  }
+
+  const handleSubdivisionChange = (value) => {
+    setSubdivisionId(value)
+    setBlockId("")
+    setGpId("")
+
+    if (value) {
+      fetchBlocks(value)
+    } else {
+      setBlocks([])
+    }
+  }
+
+  const handleBlockChange = (value) => {
+    setBlockId(value)
+    setGpId("")
+
+    if (value) {
+      fetchGps(value)
+    } else {
+      setGps([])
+    }
+  }
+
+  const handleGpChange = (value) => {
+    setGpId(value)
+  }
+
+  const handleSearch = () => {
+    fetchHealthSurveyData()
+  }
+
+  const clearFilters = () => {
+    setStartDate(undefined)
+    setEndDate(undefined)
+    setDistrictId("")
+    setSubdivisionId("")
+    setBlockId("")
+    setGpId("")
+    setSubdivisions([])
+    setBlocks([])
+    setGps([])
+  }
 
   const columns = [
     { accessorKey: "name", header: "Name" },
     { accessorKey: "gender", header: "Gender" },
     { accessorKey: "age", header: "Age" },
-    { accessorKey: "height", header: "Height (cm)" },
-    { accessorKey: "weight", header: "Weight (kg)" },
     { accessorKey: "bmi", header: "BMI" },
+    {
+      accessorKey: "blood_pressure", // expects a string like "120/80"
+      header: "Blood Pressure",
+      cell: ({ row }) => {
+        const bp = row?.original?.blood_pressure;
+        const [systolicStr, diastolicStr] = bp?.split("/") || [];
+        const systolic = parseInt(systolicStr);
+        const diastolic = parseInt(diastolicStr);
+
+        let status = "Normal";
+        if (systolic >= 140 || diastolic >= 90) {
+          status = "High"; // high
+        } else if (systolic < 90 || diastolic < 60) {
+          status = "Low"; // low
+        }
+
+        return (
+          <Badge
+            variant="outline"
+            className={
+              status === "High"
+                ? "text-red-500"
+                : status === "Low"
+                  ? "text-yellow-500"
+                  : "text-green-500"
+            }
+          >
+            {status} {status == "High" ? <RiArrowUpDoubleLine /> : status == "Low" ? <RiArrowDownDoubleLine /> : null}
+          </Badge>
+        );
+      }
+    },
+    {
+      accessorKey: "blood_sugar", // expects a number like 110
+      header: "Sugar Level",
+      cell: ({ row }) => {
+        const sugar = parseInt(row?.original?.blood_sugar);
+        let status = "Normal";
+        if (sugar > 140) {
+          status = "High"; // high
+        } else if (sugar < 70) {
+          status = "Low"; // low
+        }
+
+        return (
+          <Badge
+            variant="outline"
+            className={
+              status === "High"
+                ? "text-red-500"
+                : status === "Low"
+                  ? "text-yellow-500"
+                  : "text-green-500"
+            }
+          >
+            {status} {status == "High" ? <RiArrowUpDoubleLine /> : status == "Low" ? <RiArrowDownDoubleLine /> : null}
+          </Badge>
+        );
+      }
+    },
     {
       accessorKey: "nutrition_status",
       header: "Nutrition Status",
@@ -58,429 +358,6 @@ export default function Page() {
       ),
     },
   ];
-  
-  const data = [
-    {
-      household_id: 101,
-      name: "Subhajit Das",
-      gender: "Male",
-      dob: "1985-05-15",
-      age: 38,
-      height: 175.5,
-      weight: 70.2,
-      bmi: 22.8,
-      nutrition_status: "Normal",
-      bp: "120/80",
-      sugar_level: "Normal",
-      remarks: "Healthy",
-    },
-    {
-      household_id: 102,
-      name: "Mousumi Banerjee",
-      gender: "Female",
-      dob: "1990-08-20",
-      age: 33,
-      height: 160.2,
-      weight: 55.3,
-      bmi: 21.5,
-      nutrition_status: "MAM",
-      bp: "130/85",
-      sugar_level: "High",
-      remarks: "Requires follow-up",
-    },
-    {
-      household_id: 103,
-      name: "Prasenjit Chatterjee",
-      gender: "Male",
-      dob: "1978-02-10",
-      age: 46,
-      height: 180.0,
-      weight: 85.6,
-      bmi: 26.4,
-      nutrition_status: "Overweight",
-      bp: "140/90",
-      sugar_level: "High",
-      remarks: "Monitor diet and exercise",
-    },
-    {
-      household_id: 104,
-      name: "Sutapa Ghosh",
-      gender: "Female",
-      dob: "2002-11-25",
-      age: 21,
-      height: 155.7,
-      weight: 48.2,
-      bmi: 19.9,
-      nutrition_status: "Normal",
-      bp: "110/70",
-      sugar_level: "Normal",
-      remarks: "Healthy",
-    },
-    {
-      household_id: 105,
-      name: "Arindam Mukherjee",
-      gender: "Male",
-      dob: "1965-06-18",
-      age: 59,
-      height: 170.2,
-      weight: 90.5,
-      bmi: 31.3,
-      nutrition_status: "Obese",
-      bp: "150/95",
-      sugar_level: "Very High",
-      remarks: "Requires medical attention",
-    },
-    {
-      household_id: 106,
-      name: "Ipshita Roy",
-      gender: "Female",
-      dob: "1998-03-07",
-      age: 26,
-      height: 167.5,
-      weight: 65.4,
-      bmi: 23.3,
-      nutrition_status: "Normal",
-      bp: "115/75",
-      sugar_level: "Normal",
-      remarks: "Healthy",
-    },
-    {
-      household_id: 107,
-      name: "Debojyoti Saha",
-      gender: "Male",
-      dob: "1983-09-12",
-      age: 40,
-      height: 175.0,
-      weight: 82.0,
-      bmi: 26.8,
-      nutrition_status: "Overweight",
-      bp: "135/88",
-      sugar_level: "Borderline High",
-      remarks: "Should exercise regularly",
-    },
-    {
-      household_id: 108,
-      name: "Rimpa Bhattacharya",
-      gender: "Female",
-      dob: "2000-01-30",
-      age: 24,
-      height: 162.3,
-      weight: 58.7,
-      bmi: 22.3,
-      nutrition_status: "Normal",
-      bp: "118/78",
-      sugar_level: "Normal",
-      remarks: "Healthy",
-    },
-    {
-      household_id: 109,
-      name: "Anirban Dutta",
-      gender: "Male",
-      dob: "1958-12-05",
-      age: 66,
-      height: 168.5,
-      weight: 95.2,
-      bmi: 33.6,
-      nutrition_status: "Obese",
-      bp: "160/100",
-      sugar_level: "Very High",
-      remarks: "Critical - needs urgent care",
-    },
-    {
-      household_id: 110,
-      name: "Shreya Sen",
-      gender: "Female",
-      dob: "1975-07-22",
-      age: 49,
-      height: 159.8,
-      weight: 70.1,
-      bmi: 27.4,
-      nutrition_status: "Overweight",
-      bp: "132/84",
-      sugar_level: "Borderline High",
-      remarks: "Needs diet monitoring",
-    },
-    {
-      household_id: 101,
-      name: "Subhajit Das",
-      gender: "Male",
-      dob: "1985-05-15",
-      age: 38,
-      height: 175.5,
-      weight: 70.2,
-      bmi: 22.8,
-      nutrition_status: "Normal",
-      bp: "120/80",
-      sugar_level: "Normal",
-      remarks: "Healthy",
-    },
-    {
-      household_id: 102,
-      name: "Mousumi Banerjee",
-      gender: "Female",
-      dob: "1990-08-20",
-      age: 33,
-      height: 160.2,
-      weight: 55.3,
-      bmi: 21.5,
-      nutrition_status: "MAM",
-      bp: "130/85",
-      sugar_level: "High",
-      remarks: "Requires follow-up",
-    },
-    {
-      household_id: 103,
-      name: "Prasenjit Chatterjee",
-      gender: "Male",
-      dob: "1978-02-10",
-      age: 46,
-      height: 180.0,
-      weight: 85.6,
-      bmi: 26.4,
-      nutrition_status: "Overweight",
-      bp: "140/90",
-      sugar_level: "High",
-      remarks: "Monitor diet and exercise",
-    },
-    {
-      household_id: 104,
-      name: "Sutapa Ghosh",
-      gender: "Female",
-      dob: "2002-11-25",
-      age: 21,
-      height: 155.7,
-      weight: 48.2,
-      bmi: 19.9,
-      nutrition_status: "Normal",
-      bp: "110/70",
-      sugar_level: "Normal",
-      remarks: "Healthy",
-    },
-    {
-      household_id: 105,
-      name: "Arindam Mukherjee",
-      gender: "Male",
-      dob: "1965-06-18",
-      age: 59,
-      height: 170.2,
-      weight: 90.5,
-      bmi: 31.3,
-      nutrition_status: "Obese",
-      bp: "150/95",
-      sugar_level: "Very High",
-      remarks: "Requires medical attention",
-    },
-    {
-      household_id: 106,
-      name: "Ipshita Roy",
-      gender: "Female",
-      dob: "1998-03-07",
-      age: 26,
-      height: 167.5,
-      weight: 65.4,
-      bmi: 23.3,
-      nutrition_status: "Normal",
-      bp: "115/75",
-      sugar_level: "Normal",
-      remarks: "Healthy",
-    },
-    {
-      household_id: 107,
-      name: "Debojyoti Saha",
-      gender: "Male",
-      dob: "1983-09-12",
-      age: 40,
-      height: 175.0,
-      weight: 82.0,
-      bmi: 26.8,
-      nutrition_status: "Overweight",
-      bp: "135/88",
-      sugar_level: "Borderline High",
-      remarks: "Should exercise regularly",
-    },
-    {
-      household_id: 108,
-      name: "Rimpa Bhattacharya",
-      gender: "Female",
-      dob: "2000-01-30",
-      age: 24,
-      height: 162.3,
-      weight: 58.7,
-      bmi: 22.3,
-      nutrition_status: "Normal",
-      bp: "118/78",
-      sugar_level: "Normal",
-      remarks: "Healthy",
-    },
-    {
-      household_id: 109,
-      name: "Anirban Dutta",
-      gender: "Male",
-      dob: "1958-12-05",
-      age: 66,
-      height: 168.5,
-      weight: 95.2,
-      bmi: 33.6,
-      nutrition_status: "Obese",
-      bp: "160/100",
-      sugar_level: "Very High",
-      remarks: "Critical - needs urgent care",
-    },
-    {
-      household_id: 110,
-      name: "Shreya Sen",
-      gender: "Female",
-      dob: "1975-07-22",
-      age: 49,
-      height: 159.8,
-      weight: 70.1,
-      bmi: 27.4,
-      nutrition_status: "Overweight",
-      bp: "132/84",
-      sugar_level: "Borderline High",
-      remarks: "Needs diet monitoring",
-    },
-    {
-      household_id: 101,
-      name: "Subhajit Das",
-      gender: "Male",
-      dob: "1985-05-15",
-      age: 38,
-      height: 175.5,
-      weight: 70.2,
-      bmi: 22.8,
-      nutrition_status: "Normal",
-      bp: "120/80",
-      sugar_level: "Normal",
-      remarks: "Healthy",
-    },
-    {
-      household_id: 102,
-      name: "Mousumi Banerjee",
-      gender: "Female",
-      dob: "1990-08-20",
-      age: 33,
-      height: 160.2,
-      weight: 55.3,
-      bmi: 21.5,
-      nutrition_status: "MAM",
-      bp: "130/85",
-      sugar_level: "High",
-      remarks: "Requires follow-up",
-    },
-    {
-      household_id: 103,
-      name: "Prasenjit Chatterjee",
-      gender: "Male",
-      dob: "1978-02-10",
-      age: 46,
-      height: 180.0,
-      weight: 85.6,
-      bmi: 26.4,
-      nutrition_status: "Overweight",
-      bp: "140/90",
-      sugar_level: "High",
-      remarks: "Monitor diet and exercise",
-    },
-    {
-      household_id: 104,
-      name: "Sutapa Ghosh",
-      gender: "Female",
-      dob: "2002-11-25",
-      age: 21,
-      height: 155.7,
-      weight: 48.2,
-      bmi: 19.9,
-      nutrition_status: "Normal",
-      bp: "110/70",
-      sugar_level: "Normal",
-      remarks: "Healthy",
-    },
-    {
-      household_id: 105,
-      name: "Arindam Mukherjee",
-      gender: "Male",
-      dob: "1965-06-18",
-      age: 59,
-      height: 170.2,
-      weight: 90.5,
-      bmi: 31.3,
-      nutrition_status: "Obese",
-      bp: "150/95",
-      sugar_level: "Very High",
-      remarks: "Requires medical attention",
-    },
-    {
-      household_id: 106,
-      name: "Ipshita Roy",
-      gender: "Female",
-      dob: "1998-03-07",
-      age: 26,
-      height: 167.5,
-      weight: 65.4,
-      bmi: 23.3,
-      nutrition_status: "Normal",
-      bp: "115/75",
-      sugar_level: "Normal",
-      remarks: "Healthy",
-    },
-    {
-      household_id: 107,
-      name: "Debojyoti Saha",
-      gender: "Male",
-      dob: "1983-09-12",
-      age: 40,
-      height: 175.0,
-      weight: 82.0,
-      bmi: 26.8,
-      nutrition_status: "Overweight",
-      bp: "135/88",
-      sugar_level: "Borderline High",
-      remarks: "Should exercise regularly",
-    },
-    {
-      household_id: 108,
-      name: "Rimpa Bhattacharya",
-      gender: "Female",
-      dob: "2000-01-30",
-      age: 24,
-      height: 162.3,
-      weight: 58.7,
-      bmi: 22.3,
-      nutrition_status: "Normal",
-      bp: "118/78",
-      sugar_level: "Normal",
-      remarks: "Healthy",
-    },
-    {
-      household_id: 109,
-      name: "Anirban Dutta",
-      gender: "Male",
-      dob: "1958-12-05",
-      age: 66,
-      height: 168.5,
-      weight: 95.2,
-      bmi: 33.6,
-      nutrition_status: "Obese",
-      bp: "160/100",
-      sugar_level: "Very High",
-      remarks: "Critical - needs urgent care",
-    },
-    {
-      household_id: 110,
-      name: "Shreya Sen",
-      gender: "Female",
-      dob: "1975-07-22",
-      age: 49,
-      height: 159.8,
-      weight: 70.1,
-      bmi: 27.4,
-      nutrition_status: "Overweight",
-      bp: "132/84",
-      sugar_level: "Borderline High",
-      remarks: "Needs diet monitoring",
-    },
-  ];
 
 
   return (
@@ -497,7 +374,203 @@ export default function Page() {
         <div className="flex flex-1 flex-col">
           <div className="@container/main flex flex-1 flex-col gap-2">
             <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6 mx-10">
-              <DataTable data={data} columns={columns} />
+
+              <div className="border rounded-lg p-4">
+
+
+                <div className="grid grid-cols-4 gap-6 mb-6">
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Select From Date</label>
+                    <DatePicker date={startDate} setDate={setStartDate} placeholder="Pick a Date" />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Select To Date</label>
+                    <DatePicker date={endDate} setDate={setEndDate} placeholder="Pick a Date" />
+                  </div>
+
+                  {/* District Dropdown */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Select District</label>
+                    <Select value={districtId} onValueChange={handleDistrictChange}>
+                      <SelectTrigger className="w-full hover:bg-slate-100">
+                        <SelectValue placeholder="Select District" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="0">All Districts</SelectItem>
+                        {districts.map((district) => (
+                          <SelectItem key={district.id} value={district.id.toString()}>
+                            {district.district_name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Subdivision Dropdown */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Select Sub-Division</label>
+                    <Select value={subdivisionId} onValueChange={handleSubdivisionChange} disabled={!districtId}>
+                      <SelectTrigger className="w-full hover:bg-slate-100">
+                        <SelectValue placeholder="Select Sub-Division" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="0">All Subdivisions</SelectItem>
+                        {subdivisions.map((subdivision) => (
+                          <SelectItem key={subdivision.id} value={subdivision.id.toString()}>
+                            {subdivision.sub_division_name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Block Dropdown */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Select Block</label>
+                    <Select value={blockId} onValueChange={handleBlockChange} disabled={!subdivisionId}>
+                      <SelectTrigger className="w-full hover:bg-slate-100">
+                        <SelectValue placeholder="Select Block" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="0">All Blocks</SelectItem>
+                        {blocks.map((block) => (
+                          <SelectItem key={block.id} value={block.id.toString()}>
+                            {block.block_name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* GP Dropdown */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Select Gramp-Panchayat</label>
+                    <Select value={gpId} onValueChange={handleGpChange} disabled={!blockId}>
+                      <SelectTrigger className="w-full hover:bg-slate-100">
+                        <SelectValue placeholder="Select GP" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="0">All GPs</SelectItem>
+                        {gps.map((gp) => (
+                          <SelectItem key={gp.id} value={gp.id.toString()}>
+                            {gp.gp_name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Gender */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Select Gender</label>
+                    <Select value={gender} onValueChange={(value) => setGender(value)}>
+                      <SelectTrigger className="w-full hover:bg-slate-100">
+                        <SelectValue placeholder="Select Gender" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="ALL">All Gender</SelectItem>
+                        <SelectItem value="Male">Male</SelectItem>
+                        <SelectItem value="Female">Female</SelectItem>
+                        <SelectItem value="Other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Age Group */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Select Age Group</label>
+                    <Select value={ageGroup} onValueChange={(value) => setAgeGroup(value)}>
+                      <SelectTrigger className="w-full hover:bg-slate-100">
+                        <SelectValue placeholder="Select Age Group" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="ALL">All Age Group</SelectItem>
+                        <SelectItem value="1-5">1-5</SelectItem>
+                        <SelectItem value="5-10'">5-10'</SelectItem>
+                        <SelectItem value="10-15">10-15</SelectItem>
+                        <SelectItem value="15-20">15-20</SelectItem>
+                        <SelectItem value="20-30">20-30</SelectItem>
+                        <SelectItem value="30-40">30-40</SelectItem>
+                        <SelectItem value="40-50">40-50</SelectItem>
+                        <SelectItem value="50-60">50-60</SelectItem>
+                        <SelectItem value="60+">60+</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Nutrition Status */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Select Nutrition Status</label>
+                    <Select value={nutritionStatus} onValueChange={(value) => setNutritionStatus(value)}>
+                      <SelectTrigger className="w-full hover:bg-slate-100">
+                        <SelectValue placeholder="Select Nutrition Status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="ALL">All Type</SelectItem>
+                        <SelectItem value="SAM">SAM</SelectItem>
+                        <SelectItem value="MAM">MAM</SelectItem>
+                        <SelectItem value="Normal">Normal</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Blood Pressure */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Select BP Type </label>
+                    <Select value={bpStatus} onValueChange={(value) => setBpStatus(value)}>
+                      <SelectTrigger className="w-full hover:bg-slate-100">
+                        <SelectValue placeholder="Select Blood Pressure" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="ALL">All Type</SelectItem>
+                        <SelectItem value="high">High</SelectItem>
+                        <SelectItem value="low">Low</SelectItem>
+                        <SelectItem value="normal">Normal</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Blood Sugar Level */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Select Sugar-Level</label>
+                    <Select value={bloodSugar} onValueChange={(value) => setBloodSugar(value)}>
+                      <SelectTrigger className="w-full hover:bg-slate-100">
+                        <SelectValue placeholder="Select Sugar Level" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="ALL">All Type</SelectItem>
+                        <SelectItem value="high">High</SelectItem>
+                        <SelectItem value="low">Low</SelectItem>
+                        <SelectItem value="normal">Normal</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                </div>
+
+                <div className="flex gap-2 justify-center">
+                  {/* Search Button */}
+                  <Button
+                    className="bg-green-100 hover:bg-green-300 border-[1px] border-green-600 text-slate-800 px-8 cursor-pointer"
+                    onClick={handleSearch}
+                    disabled={isLoading}
+                  >
+                    {isLoading ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Loading...</> : <><Search className="h-4 w-4 mr-2" /> Search</>}
+                  </Button>
+
+                  {/* Clear Filters Button */}
+                  <Button variant="secondary" className="px-8 border cursor-pointer" onClick={clearFilters}>
+                    Clear Filters
+                  </Button>
+                </div>
+              </div>
+
+              {/* Data Table */}
+              <div className="overflow-hidden rounded-t-4xl">
+                <DataTable data={surveyData} columns={columns} loading={isLoading} />
+              </div>
 
               {/* Dialog after click on view button in table */}
               <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -506,8 +579,8 @@ export default function Page() {
                     <DialogTitle>Health Info.</DialogTitle>
                   </DialogHeader>
                   <div className="grid grid-cols-2 gap-2 p-6">
-                    <div className="font-medium">Household No:</div>
-                    <div>{"WB-H2Y-" + selectedRow?.household_id}</div>
+                    {/* <div className="font-medium">Household No:</div>
+                    <div>{"WB-H2Y-" + selectedRow?.household_id}</div> */}
 
                     <div className="font-medium">Name:</div>
                     <div>{selectedRow?.name}</div>
@@ -516,7 +589,7 @@ export default function Page() {
                     <div>{selectedRow?.gender}</div>
 
                     <div className="font-medium">Date of Birth:</div>
-                    <div>{selectedRow?.dob}</div>
+                    <div>{moment(selectedRow?.dob).format("DD/MM/YYYY")}</div>
 
                     <div className="font-medium">Age:</div>
                     <div>{selectedRow?.age}</div>
@@ -534,10 +607,10 @@ export default function Page() {
                     <div>{selectedRow?.nutrition_status}</div>
 
                     <div className="font-medium">Blood Pressure:</div>
-                    <div>{selectedRow?.bp}</div>
+                    <div>{selectedRow?.blood_pressure}</div>
 
                     <div className="font-medium">Sugar Level:</div>
-                    <div>{selectedRow?.sugar_level}</div>
+                    <div>{selectedRow?.blood_sugar}</div>
 
                     <div className="font-medium">Remarks:</div>
                     <div>{selectedRow?.remarks}</div>

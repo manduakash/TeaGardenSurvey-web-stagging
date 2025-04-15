@@ -9,11 +9,16 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import Link from "next/link";
-import { FcBusinesswoman } from "react-icons/fc";
+import { FcBusinessman, FcBusinesswoman } from "react-icons/fc";
 import { FaChildReaching } from "react-icons/fa6";
-import { BadgeCheck, HeartPulse, Hourglass, Landmark } from "lucide-react";
+import { ArrowRightIcon, BadgeCheck, HeartPulse, TrendingDown, TrendingUp } from "lucide-react";
+import { Button } from "./ui/button";
+import { MdElderly } from "react-icons/md";
+import { GrCertificate } from "react-icons/gr";
+import { HiOutlineDocumentCurrencyRupee } from "react-icons/hi2";
 
-// Reusable skeleton loader component for a card.
+
+
 // The layout approximates the header (description, title, badge) and footer (one or more lines of details).
 const SkeletonCard = ({ footerLines = 2 }) => {
   const lineArray = Array(footerLines).fill(0);
@@ -49,7 +54,7 @@ export function SectionCards({ dashboardCount, isLoading }) {
       footerIcon: <IconTrendingUp className="size-4" />,
       footerStat: "Last month (+2.8%)",
       footerTextColor: "text-sm text-cyan-600 dark:text-slate-400",
-      cardClass: "border-2 border-slate-200 hover:bg-cyan-100 hover:border-cyan-400",
+      cardClass: "border-2 bg-cyan-100 hover:border-cyan-400 border-slate-300",
       link: "/surveyed-households"
     },
     {
@@ -70,7 +75,7 @@ export function SectionCards({ dashboardCount, isLoading }) {
         </span>
       ),
       footerTextColor: "text-sm text-amber-600 dark:text-slate-400",
-      cardClass: "border-2 border-slate-200 hover:bg-amber-100 hover:border-amber-400",
+      cardClass: "border-2 bg-amber-100 hover:border-amber-400 border-slate-300",
       link: "/no-of-members",
       badge: {
         text: "-8%",
@@ -95,8 +100,8 @@ export function SectionCards({ dashboardCount, isLoading }) {
           </span>
         </span>
       ),
-      footerTextColor: "text-sm text-violet-600",
-      cardClass: "border-2 border-slate-200 hover:bg-violet-100 hover:border-violet-400",
+      footerTextColor: "text-sm text-green-600",
+      cardClass: "border-2 bg-green-100 hover:border-green-400 border-slate-300",
       link: "/health-metrics",
       badge: {
         text: "+12.5%",
@@ -121,8 +126,8 @@ export function SectionCards({ dashboardCount, isLoading }) {
           </span>
         </span>
       ),
-      footerTextColor: "text-sm text-teal-600",
-      cardClass: "border-2 border-slate-200 hover:bg-teal-100 hover:border-teal-400",
+      footerTextColor: "text-sm text-indigo-600",
+      cardClass: "border-2 bg-indigo-100 hover:border-indigo-400 border-slate-300",
       link: "/health-metrics",
       badge: {
         text: "+12.5%",
@@ -182,88 +187,92 @@ export function SectionCards({ dashboardCount, isLoading }) {
         ) : (
           <>
             {/* High/Low BP Cases Card */}
-            <div className="group p-0 m-0">
+            <div className="p-0 m-0">
               <Card className="border-2 border-slate-200 bg-violet-50">
                 <CardHeader>
                   <CardTitle className="text-2xl font-bold tabular-nums @[250px]/card:text-2xl">
                     High/Low BP Cases
                   </CardTitle>
                 </CardHeader>
-                <CardFooter className="flex flex-col items-start gap-3 text-sm">
-                  <div className="flex items-center gap-2 text-base font-medium">
-                    <Landmark className="h-4 w-4 text-violet-600" />
-                    High BP Female Cases: <span className="font-semibold">{dashboardCount?.high_bp_women ?? 0}</span>
+                <CardFooter className="flex flex-col items-start gap-1 text-sm">
+                  <div className="flex items-center justify-between w-full gap-2 text-base font-medium">
+                    <span className="flex relative justify-center items-center gap-2 text-sm"><FcBusinessman className="h-5 w-5 text-violet-600 z-1" /><TrendingUp className="left-2.5 absolute h-4 w-4 text-violet-600 z-0" />
+                      High BP Female Cases:</span> <span className="font-semibold">{dashboardCount?.high_bp_women ?? 0}</span>
                   </div>
-                  <div className="flex items-center gap-2 text-base font-medium">
-                    <BadgeCheck className="h-4 w-4 text-green-600" />
-                    Low BP Female Cases: <span className="font-semibold">{dashboardCount?.low_bp_women ?? 0}</span>
+                  <div className="flex items-center justify-between w-full gap-2 text-base font-medium">
+                    <span className="flex relative justify-center items-center gap-2 text-sm"><FcBusinessman className="h-5 w-5 text-green-600 z-1" /><TrendingDown className="left-2.5 absolute h-4 w-4 text-violet-600 z-0" />
+                      Low BP Female Cases:</span> <span className="font-semibold">{dashboardCount?.low_bp_women ?? 0}</span>
                   </div>
-                  <div className="flex items-center gap-2 text-base font-medium">
-                    <HeartPulse className="h-4 w-4 text-red-600" />
-                    High BP Male Cases: <span className="font-semibold">{dashboardCount?.high_bp_all ?? 0}</span>
+                  <div className="flex items-center justify-between w-full gap-2 text-base font-medium">
+                    <span className="flex relative justify-center items-center gap-2 text-sm"><FcBusinesswoman className="h-5 w-5 text-violet-600 z-1" /><TrendingUp className="left-2.5 absolute h-4 w-4 text-violet-600 z-0" />
+                      High BP Male Cases:</span> <span className="font-semibold">{dashboardCount?.high_bp_all ?? 0}</span>
                   </div>
-                  <div className="flex items-center gap-2 text-base font-medium">
-                    <Hourglass className="h-4 w-4 text-yellow-600" />
-                    Low BP Male Cases: <span className="font-semibold">{dashboardCount?.low_bp_all ?? 0}</span>
+                  <div className="flex items-center justify-between w-full gap-2 text-base font-medium">
+                    <span className="flex relative justify-center items-center gap-2 text-sm"><FcBusinesswoman className="h-5 w-5 text-green-600 z-1" /><TrendingDown className="left-2.5 absolute h-4 w-4 text-violet-600 z-0" />
+                      Low BP Male Cases:</span> <span className="font-semibold">{dashboardCount?.low_bp_all ?? 0}</span>
                   </div>
+                  <Button variant="outline" size={"sm"} className="group mx-auto p-0 rounded-2xl bg-violet-200 hover:bg-violet-200 border-slate-300 hover:ring-violet-500 hover:ring-1"><Link href="/health-metrics" className="m-0 p-2 flex justify-center items-center gap-2 text-xs">show more <ArrowRightIcon className="text-slate-400 group-hover:text-violet-700"/></Link></Button>
                 </CardFooter>
               </Card>
             </div>
 
             {/* High/Low Sugar Cases Card */}
-            <div className="group p-0 m-0">
+            <div className="p-0 m-0">
               <Card className="border-2 border-slate-200 bg-violet-50">
                 <CardHeader>
                   <CardTitle className="text-2xl font-bold tabular-nums @[250px]/card:text-2xl">
                     High/Low Sugar Cases
                   </CardTitle>
                 </CardHeader>
-                <CardFooter className="flex flex-col items-start gap-3 text-sm">
-                  <div className="flex items-center gap-2 text-base font-medium">
-                    <Landmark className="h-4 w-4 text-violet-600" />
-                    High Sugar Female Cases: <span className="font-semibold">{dashboardCount?.high_sugar_women ?? 0}</span>
+                <CardFooter className="flex flex-col items-start gap-1 text-sm">
+                  <div className="flex items-center justify-between w-full gap-2 relative text-base font-medium">
+                    <span className="flex justify-center items-center gap-2 text-sm"><FcBusinessman className="h-5 w-5 text-violet-600 z-1" /><TrendingUp className="left-2.5 absolute h-4 w-4 text-violet-600 z-0" />
+                    High Sugar Female Cases:</span> <span className="font-semibold">{dashboardCount?.high_sugar_women ?? 0}</span>
                   </div>
-                  <div className="flex items-center gap-2 text-base font-medium">
-                    <BadgeCheck className="h-4 w-4 text-green-600" />
-                    Low Sugar Female Cases: <span className="font-semibold">{dashboardCount?.low_sugar_women ?? 0}</span>
+                  <div className="flex items-center justify-between w-full gap-2 relative text-base font-medium">
+                    <span className="flex justify-center items-center gap-2 text-sm"><FcBusinessman className="h-5 w-5 text-green-600 z-1" /><TrendingDown className="left-2.5 absolute h-4 w-4 text-violet-600 z-0" />
+                    Low Sugar Female Cases:</span> <span className="font-semibold">{dashboardCount?.low_sugar_women ?? 0}</span>
                   </div>
-                  <div className="flex items-center gap-2 text-base font-medium">
-                    <HeartPulse className="h-4 w-4 text-red-600" />
-                    High Sugar Male Cases: <span className="font-semibold">{dashboardCount?.high_sugar_all ?? 0}</span>
+                  <div className="flex items-center justify-between w-full gap-2 relative text-base font-medium">
+                    <span className="flex justify-center items-center gap-2 text-sm"><FcBusinesswoman className="h-5 w-5 text-violet-600 z-1" /><TrendingUp className="left-2.5 absolute h-4 w-4 text-violet-600 z-0" />
+                    High Sugar Male Cases:</span> <span className="font-semibold">{dashboardCount?.high_sugar_all ?? 0}</span>
                   </div>
-                  <div className="flex items-center gap-2 text-base font-medium">
-                    <Hourglass className="h-4 w-4 text-yellow-600" />
-                    Low Sugar Male Cases: <span className="font-semibold">{dashboardCount?.low_sugar_all ?? 0}</span>
+                  <div className="flex items-center justify-between w-full gap-2 relative text-base font-medium">
+                    <span className="flex justify-center items-center gap-2 text-sm"><FcBusinesswoman className="h-5 w-5 text-green-600 z-1" /><TrendingDown className="left-2.5 absolute h-4 w-4 text-violet-600 z-0" />
+                    Low Sugar Male Cases:</span> <span className="font-semibold">{dashboardCount?.low_sugar_all ?? 0}</span>
                   </div>
+                  <Button variant="outline" size={"sm"} className="group mx-auto p-0 rounded-2xl bg-violet-200 hover:bg-violet-200 border-slate-300 hover:ring-violet-500 hover:ring-1"><Link href="/health-metrics" className="m-0 p-2 flex justify-center items-center gap-2 text-xs">show more <ArrowRightIcon className="text-slate-400 group-hover:text-violet-700"/></Link></Button>
                 </CardFooter>
               </Card>
             </div>
 
             {/* Govt. Schemes Report Card */}
-            <div className="group p-0 m-0">
+            <div className="p-0 m-0">
               <Card className="border-2 border-slate-200 bg-violet-50">
                 <CardHeader>
                   <CardTitle className="text-2xl font-bold tabular-nums @[250px]/card:text-2xl">
                     All Govt. Schemes Report
                   </CardTitle>
                 </CardHeader>
-                <CardFooter className="flex flex-col items-start gap-3 text-sm">
-                  <div className="flex items-center gap-2 text-base font-medium">
-                    <Landmark className="h-4 w-4 text-violet-600" />
-                    Caste Certificate: <span className="font-semibold">{dashboardCount?.caste_certificate_women ?? 0}</span>
+                <CardFooter className="flex flex-col items-start gap-1 text-sm">
+                  <div className="flex items-center justify-between w-full gap-2 text-base font-medium">
+                    <span className="flex justify-center items-center gap-2 text-sm"><GrCertificate className="h-4 w-4 text-violet-600" />
+                      SC/ST Caste Certificate:</span> <span className="font-semibold">{dashboardCount?.caste_certificate_women ?? 0}</span>
                   </div>
-                  <div className="flex items-center gap-2 text-base font-medium">
-                    <BadgeCheck className="h-4 w-4 text-green-600" />
-                    Lakshmir Bhandar: <span className="font-semibold">{dashboardCount?.lakshmir_bhandar_women ?? 0}</span>
+                  <div className="flex items-center justify-between w-full gap-2 text-base font-medium">
+                    <span className="flex justify-center items-center gap-2 text-sm"><HiOutlineDocumentCurrencyRupee className="h-4 w-4 text-green-600" />
+                      Lakshmir Bhandar:</span> <span className="font-semibold">{dashboardCount?.lakshmir_bhandar_women ?? 0}</span>
                   </div>
-                  <div className="flex items-center gap-2 text-base font-medium">
-                    <HeartPulse className="h-4 w-4 text-red-600" />
-                    Swasthya Sathi: <span className="font-semibold">{dashboardCount?.swasthya_sathi_women ?? 0}</span>
+                  <div className="flex items-center justify-between w-full gap-2 text-base font-medium">
+                    <span className="flex justify-center items-center gap-2 text-sm"><HeartPulse className="h-4 w-4 text-red-500" />
+                      Swasthya Sathi:</span> <span className="font-semibold">{dashboardCount?.swasthya_sathi_women ?? 0}</span>
                   </div>
-                  <div className="flex items-center gap-2 text-base font-medium">
-                    <Hourglass className="h-4 w-4 text-yellow-600" />
-                    Old Age Pension: <span className="font-semibold">{dashboardCount?.old_age_pension_women ?? 0}</span>
+                  <div className="flex items-center justify-between w-full gap-2 text-base font-medium">
+                    <span className="flex justify-center items-center gap-2 text-sm"><MdElderly className="h-4 w-4 text-yellow-600" />
+                      Old Age Pension:</span> <span className="font-semibold">{dashboardCount?.old_age_pension_women ?? 0}</span>
                   </div>
+
+                  <Button variant="outline" size={"sm"} className="group mx-auto p-0 rounded-2xl bg-violet-200 hover:bg-violet-200 border-slate-300 hover:ring-violet-500 hover:ring-1"><Link href="/health-metrics" className="m-0 p-2 flex justify-center items-center gap-2 text-xs">show more <ArrowRightIcon className="text-slate-400 group-hover:text-violet-700"/></Link></Button>
                 </CardFooter>
               </Card>
             </div>

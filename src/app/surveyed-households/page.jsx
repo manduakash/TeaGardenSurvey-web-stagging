@@ -6,12 +6,10 @@ import { DataTable } from "@/components/data-tables/reusable-datatable"
 import { SiteHeader } from "@/components/site-header"
 import { Button } from "@/components/ui/button"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
-import { Calendar, Search, Eye } from 'lucide-react'
+import { Search, Eye, Loader2 } from 'lucide-react'
 import dynamic from "next/dynamic"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { format } from "date-fns"
-import { Calendar as CalendarComponent } from "@/components/ui/calendar"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { DatePicker } from "@/components/reusables/date-picker"
 
@@ -415,9 +413,9 @@ export default function SurveyDashboard() {
                   <Button
                     className="bg-green-100 hover:bg-green-300 border-[1px] border-green-600 text-slate-800 px-8 cursor-pointer"
                     onClick={handleSearch}
+                    disabled={isLoading}
                   >
-                    <Search className="h-4 w-4 mr-2" />
-                    Search
+                    {isLoading ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Loading...</> : <><Search className="h-4 w-4 mr-2" /> Search</>}
                   </Button>
 
                   {/* Clear Filters Button */}
@@ -429,7 +427,7 @@ export default function SurveyDashboard() {
 
               {/* Data Table */}
               <div className="overflow-hidden rounded-t-4xl">
-                <DataTable data={surveyData} columns={columns} isLoading={isLoading} />
+                <DataTable data={surveyData} columns={columns} loading={isLoading} />
               </div>
 
               {/* Detail Dialog */}

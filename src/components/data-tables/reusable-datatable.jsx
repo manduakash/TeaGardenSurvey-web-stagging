@@ -17,23 +17,36 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import {
+    Select,
+    SelectTrigger,
+    SelectValue,
+    SelectContent,
+    SelectItem,
+} from "@/components/ui/select";
 import * as XLSX from "xlsx";
-import { ChevronsLeft, ChevronLeft, ChevronRight, ChevronsRight, FileSpreadsheet, File, Printer, Loader2 } from "lucide-react";
+import {
+    ChevronsLeft,
+    ChevronLeft,
+    ChevronRight,
+    ChevronsRight,
+    FileSpreadsheet,
+    Printer,
+    Loader2,
+} from "lucide-react";
 import { Card } from "../ui/card";
 import { Label } from "../ui/label";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { FaFilePdf } from "react-icons/fa6";
 
-export function DataTable({ columns, data: initialData }) {
-    const [data, setData] = React.useState(initialData); // Local state for data
+export function DataTable({ columns, data: initialData, loading = false }) {
+    const [data, setData] = React.useState(initialData);
     const [searchQuery, setSearchQuery] = React.useState("");
     const [pagination, setPagination] = React.useState({ pageIndex: 0, pageSize: 10 });
     const [excelLoading, setExcelLoading] = React.useState(false);
     const [pdfLoading, setPdfLoading] = React.useState(false);
 
-    // Update local data state when initialData changes
     React.useEffect(() => {
         setData(initialData);
     }, [initialData]);
@@ -77,14 +90,12 @@ export function DataTable({ columns, data: initialData }) {
             setPdfLoading(true);
             setTimeout(() => {
                 const doc = new jsPDF();
-                const tableColumnHeaders = columns.map((col) => col.header); // Extract column headers
+                const tableColumnHeaders = columns.map((col) => col.header);
                 const tableRows = filteredData.map((row) =>
-                    columns.map((col) => row[col.accessorKey] || "") // Extract row data
+                    columns.map((col) => row[col.accessorKey] || "")
                 );
 
-                doc.text("Data Table Report", 14, 10); // Title
-
-                // Call autoTable correctly
+                doc.text("Data Table Report", 14, 10);
                 autoTable(doc, {
                     head: [tableColumnHeaders],
                     body: tableRows,
@@ -95,8 +106,7 @@ export function DataTable({ columns, data: initialData }) {
             }, 2000);
         } catch (error) {
             alert("Error exporting to PDF:", error);
-        }
-        finally {
+        } finally {
             setPdfLoading(false);
         }
     };
@@ -153,6 +163,18 @@ export function DataTable({ columns, data: initialData }) {
         printWindow.close();
     };
 
+    const renderSkeletonRows = (rowCount = 10, colCount = columns.length + 1) => {
+        return Array.from({ length: rowCount }).map((_, rowIndex) => (
+            <TableRow key={`skeleton-row-${rowIndex}`}>
+                {Array.from({ length: colCount }).map((_, colIndex) => (
+                    <TableCell key={`skeleton-cell-${rowIndex}-${colIndex}`}>
+                        <div className="h-4 bg-slate-200 rounded animate-pulse w-full" />
+                    </TableCell>
+                ))}
+            </TableRow>
+        ));
+    };
+
     return (
         <div className="overflow-hidden mx-0">
             <div className="py-4 px-0 flex justify-between items-center">
@@ -164,10 +186,18 @@ export function DataTable({ columns, data: initialData }) {
                 />
                 <div className="flex gap-4">
                     <Button className="cursor-pointer" variant="outline" onClick={handleExportToExcel} disabled={excelLoading}>
-                        {excelLoading ? <div className="flex justify-center gap-1 items-center"><Loader2 className="animate-spin" />Exporting...</div> : <><FileSpreadsheet className="text-green-700" />Export Excel</>}
+                        {excelLoading ? (
+                            <div className="flex justify-center gap-1 items-center"><Loader2 className="animate-spin" />Exporting...</div>
+                        ) : (
+                            <><FileSpreadsheet className="text-green-700" />Export Excel</>
+                        )}
                     </Button>
                     <Button className="cursor-pointer" variant="outline" onClick={handleExportToPDF} disabled={pdfLoading}>
-                        {pdfLoading ? <div className="flex justify-center gap-1 items-center"><Loader2 className="animate-spin" />Exporting...</div> : <><FaFilePdf className="text-red-600" />Export PDF</>}
+                        {pdfLoading ? (
+                            <div className="flex justify-center gap-1 items-center"><Loader2 className="animate-spin" />Exporting...</div>
+                        ) : (
+                            <><FaFilePdf className="text-red-600" />Export PDF</>
+                        )}
                     </Button>
                     <Button className="cursor-pointer" variant="outline" onClick={handlePrint}>
                         <Printer className="text-slate-500" /> Print
@@ -189,10 +219,11 @@ export function DataTable({ columns, data: initialData }) {
                         ))}
                     </TableHeader>
                     <TableBody>
-                        {table.getRowModel().rows.length ? (
+                        {loading ? (
+                            renderSkeletonRows()
+                        ) : table.getRowModel().rows.length ? (
                             table.getRowModel().rows.map((row, rowIndex) => (
                                 <TableRow key={row.id}>
-                                    {/* Show serial number (starting from 1) */}
                                     <TableCell className="text-center font-semibold">{rowIndex + 1}</TableCell>
                                     {row.getVisibleCells().map((cell) => (
                                         <TableCell key={cell.id}>
@@ -225,52 +256,26 @@ export function DataTable({ columns, data: initialData }) {
                     </div>
                     <div className="text-muted-foreground">Page <b className="text-slate-600">{pagination.pageIndex + 1}</b> of {table.getPageCount()}</div>
                     <div className="flex justify-center gap-2 items-center">
-                        <Button
-                            variant="outline"
-                            onClick={() => table.setPageIndex(0)}
-                            disabled={!table.getCanPreviousPage()}
-                        >
+                        <Button variant="outline" onClick={() => table.setPageIndex(0)} disabled={!table.getCanPreviousPage()}>
                             <ChevronsLeft />
                         </Button>
-
-                        <Button
-                            variant="outline"
-                            onClick={() => table.previousPage()}
-                            disabled={!table.getCanPreviousPage()}
-                        >
+                        <Button variant="outline" onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>
                             <ChevronLeft />
                         </Button>
-
-                        {/* Page Numbers */}
                         <div className="flex gap-1">
                             {Array.from({ length: table.getPageCount() }, (_, i) => (
-                                <Button
-                                    key={i}
-                                    variant={pagination.pageIndex === i ? "default" : "outline"}
-                                    onClick={() => table.setPageIndex(i)}
-                                >
+                                <Button key={i} variant={pagination.pageIndex === i ? "default" : "outline"} onClick={() => table.setPageIndex(i)}>
                                     {i + 1}
                                 </Button>
                             ))}
                         </div>
-
-                        <Button
-                            variant="outline"
-                            onClick={() => table.nextPage()}
-                            disabled={!table.getCanNextPage()}
-                        >
+                        <Button variant="outline" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
                             <ChevronRight />
                         </Button>
-
-                        <Button
-                            variant="outline"
-                            onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-                            disabled={!table.getCanNextPage()}
-                        >
+                        <Button variant="outline" onClick={() => table.setPageIndex(table.getPageCount() - 1)} disabled={!table.getCanNextPage()}>
                             <ChevronsRight />
                         </Button>
                     </div>
-
                 </div>
             </Card>
         </div>
