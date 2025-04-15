@@ -102,7 +102,7 @@ export function SectionCards({ dashboardCount, isLoading }) {
       ),
       footerTextColor: "text-sm text-green-600",
       cardClass: "border-2 bg-green-100 hover:border-green-400 border-slate-300",
-      link: "/health-metrics",
+      link: "/health-metrics/sam",
       badge: {
         text: "+12.5%",
         className: "text-green-500 bg-green-50",
@@ -128,7 +128,7 @@ export function SectionCards({ dashboardCount, isLoading }) {
       ),
       footerTextColor: "text-sm text-indigo-600",
       cardClass: "border-2 bg-indigo-100 hover:border-indigo-400 border-slate-300",
-      link: "/health-metrics",
+      link: "/health-metrics/mam",
       badge: {
         text: "+12.5%",
         className: "text-green-500 bg-green-50",
@@ -196,19 +196,19 @@ export function SectionCards({ dashboardCount, isLoading }) {
                 </CardHeader>
                 <CardFooter className="flex flex-col items-start gap-1 text-sm">
                   <div className="flex items-center justify-between w-full gap-2 text-base font-medium">
-                    <span className="flex relative justify-center items-center gap-2 text-sm"><FcBusinessman className="h-5 w-5 text-violet-600 z-1" /><TrendingUp className="left-2.5 absolute h-4 w-4 text-violet-600 z-0" />
+                    <span className="flex relative justify-center items-center gap-2 text-sm"><FcBusinesswoman className="h-5 w-5 text-violet-600 z-1" /><TrendingUp className="left-2.5 absolute h-4 w-4 text-violet-600 z-0" />
                       High BP Female Cases:</span> <span className="font-semibold">{dashboardCount?.high_bp_women ?? 0}</span>
                   </div>
                   <div className="flex items-center justify-between w-full gap-2 text-base font-medium">
-                    <span className="flex relative justify-center items-center gap-2 text-sm"><FcBusinessman className="h-5 w-5 text-green-600 z-1" /><TrendingDown className="left-2.5 absolute h-4 w-4 text-violet-600 z-0" />
+                    <span className="flex relative justify-center items-center gap-2 text-sm"><FcBusinesswoman className="h-5 w-5 text-green-600 z-1" /><TrendingDown className="left-2.5 absolute h-4 w-4 text-violet-600 z-0" />
                       Low BP Female Cases:</span> <span className="font-semibold">{dashboardCount?.low_bp_women ?? 0}</span>
                   </div>
                   <div className="flex items-center justify-between w-full gap-2 text-base font-medium">
-                    <span className="flex relative justify-center items-center gap-2 text-sm"><FcBusinesswoman className="h-5 w-5 text-violet-600 z-1" /><TrendingUp className="left-2.5 absolute h-4 w-4 text-violet-600 z-0" />
+                    <span className="flex relative justify-center items-center gap-2 text-sm"><FcBusinessman className="h-5 w-5 text-violet-600 z-1" /><TrendingUp className="left-2.5 absolute h-4 w-4 text-violet-600 z-0" />
                       High BP Male Cases:</span> <span className="font-semibold">{dashboardCount?.high_bp_all ?? 0}</span>
                   </div>
                   <div className="flex items-center justify-between w-full gap-2 text-base font-medium">
-                    <span className="flex relative justify-center items-center gap-2 text-sm"><FcBusinesswoman className="h-5 w-5 text-green-600 z-1" /><TrendingDown className="left-2.5 absolute h-4 w-4 text-violet-600 z-0" />
+                    <span className="flex relative justify-center items-center gap-2 text-sm"><FcBusinessman className="h-5 w-5 text-green-600 z-1" /><TrendingDown className="left-2.5 absolute h-4 w-4 text-violet-600 z-0" />
                       Low BP Male Cases:</span> <span className="font-semibold">{dashboardCount?.low_bp_all ?? 0}</span>
                   </div>
                   <Button variant="outline" size={"sm"} className="group mx-auto p-0 rounded-2xl bg-violet-200 hover:bg-violet-200 border-slate-300 hover:ring-violet-500 hover:ring-1"><Link href="/health-metrics" className="m-0 p-2 flex justify-center items-center gap-2 text-xs">show more <ArrowRightIcon className="text-slate-400 group-hover:text-violet-700"/></Link></Button>
@@ -226,19 +226,19 @@ export function SectionCards({ dashboardCount, isLoading }) {
                 </CardHeader>
                 <CardFooter className="flex flex-col items-start gap-1 text-sm">
                   <div className="flex items-center justify-between w-full gap-2 relative text-base font-medium">
-                    <span className="flex justify-center items-center gap-2 text-sm"><FcBusinessman className="h-5 w-5 text-violet-600 z-1" /><TrendingUp className="left-2.5 absolute h-4 w-4 text-violet-600 z-0" />
+                    <span className="flex justify-center items-center gap-2 text-sm"><FcBusinesswoman className="h-5 w-5 text-violet-600 z-1" /><TrendingUp className="left-2.5 absolute h-4 w-4 text-violet-600 z-0" />
                     High Sugar Female Cases:</span> <span className="font-semibold">{dashboardCount?.high_sugar_women ?? 0}</span>
                   </div>
                   <div className="flex items-center justify-between w-full gap-2 relative text-base font-medium">
-                    <span className="flex justify-center items-center gap-2 text-sm"><FcBusinessman className="h-5 w-5 text-green-600 z-1" /><TrendingDown className="left-2.5 absolute h-4 w-4 text-violet-600 z-0" />
+                    <span className="flex justify-center items-center gap-2 text-sm"><FcBusinesswoman className="h-5 w-5 text-green-600 z-1" /><TrendingDown className="left-2.5 absolute h-4 w-4 text-violet-600 z-0" />
                     Low Sugar Female Cases:</span> <span className="font-semibold">{dashboardCount?.low_sugar_women ?? 0}</span>
                   </div>
                   <div className="flex items-center justify-between w-full gap-2 relative text-base font-medium">
-                    <span className="flex justify-center items-center gap-2 text-sm"><FcBusinesswoman className="h-5 w-5 text-violet-600 z-1" /><TrendingUp className="left-2.5 absolute h-4 w-4 text-violet-600 z-0" />
+                    <span className="flex justify-center items-center gap-2 text-sm"><FcBusinessman className="h-5 w-5 text-violet-600 z-1" /><TrendingUp className="left-2.5 absolute h-4 w-4 text-violet-600 z-0" />
                     High Sugar Male Cases:</span> <span className="font-semibold">{dashboardCount?.high_sugar_all ?? 0}</span>
                   </div>
                   <div className="flex items-center justify-between w-full gap-2 relative text-base font-medium">
-                    <span className="flex justify-center items-center gap-2 text-sm"><FcBusinesswoman className="h-5 w-5 text-green-600 z-1" /><TrendingDown className="left-2.5 absolute h-4 w-4 text-violet-600 z-0" />
+                    <span className="flex justify-center items-center gap-2 text-sm"><FcBusinessman className="h-5 w-5 text-green-600 z-1" /><TrendingDown className="left-2.5 absolute h-4 w-4 text-violet-600 z-0" />
                     Low Sugar Male Cases:</span> <span className="font-semibold">{dashboardCount?.low_sugar_all ?? 0}</span>
                   </div>
                   <Button variant="outline" size={"sm"} className="group mx-auto p-0 rounded-2xl bg-violet-200 hover:bg-violet-200 border-slate-300 hover:ring-violet-500 hover:ring-1"><Link href="/health-metrics" className="m-0 p-2 flex justify-center items-center gap-2 text-xs">show more <ArrowRightIcon className="text-slate-400 group-hover:text-violet-700"/></Link></Button>
