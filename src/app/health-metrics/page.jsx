@@ -282,15 +282,9 @@ export default function Page() {
         return (
           <Badge
             variant="outline"
-            className={
-              status === "High"
-                ? "text-red-500"
-                : status === "Low"
-                  ? "text-yellow-500"
-                  : "text-green-500"
-            }
+            className="text-slate-400"
           >
-            {status} {status == "High" ? <RiArrowUpDoubleLine /> : status == "Low" ? <RiArrowDownDoubleLine /> : null}
+            {status == "High" ? <RiArrowUpDoubleLine className="text-red-500" /> : status == "Low" ? <RiArrowDownDoubleLine className="text-yellow-500" /> : <AiFillCheckCircle className="text-green-500"/>} {status}
           </Badge>
         );
       }
@@ -310,6 +304,7 @@ export default function Page() {
         return (
           <Badge
             variant="outline"
+            className="text-slate-400"
           >
            {status == "High" ? <RiArrowUpDoubleLine className="text-red-500" /> : status == "Low" ? <RiArrowDownDoubleLine className="text-yellow-500" /> : <AiFillCheckCircle className="text-green-500"/>} {status}
           </Badge>
