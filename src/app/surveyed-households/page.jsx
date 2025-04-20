@@ -6,10 +6,9 @@ import { DataTable } from "@/components/data-tables/reusable-datatable"
 import { SiteHeader } from "@/components/site-header"
 import { Button } from "@/components/ui/button"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
-import { Search, Eye, Loader2 } from 'lucide-react'
+import { Search, Eye, Loader2 } from "lucide-react"
 import dynamic from "next/dynamic"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { format } from "date-fns"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { DatePicker } from "@/components/reusables/date-picker"
 import { getUserData } from "@/utils/cookies"
@@ -55,42 +54,38 @@ export default function SurveyDashboard() {
   const [isLoading, setIsLoading] = useState(false)
   const [customMarkerIcon, setCustomMarkerIcon] = useState(null)
 
-
   // Fetch districts on initial load
   useEffect(() => {
-
     const fixUsersJurisdiction = async () => {
-      const userDistrictId = getUserData().DistrictID ?? 0;
-      const userSubDivisionId = getUserData().SubDivisionID ?? 0;
-      const userBlockId = getUserData().BlockID ?? 0;
+      const userDistrictId = getUserData().DistrictID ?? 0
+      const userSubDivisionId = getUserData().SubDivisionID ?? 0
+      const userBlockId = getUserData().BlockID ?? 0
       const userGPId = getUserData().GPID ?? 0
 
       if (userDistrictId) {
-        await fetchDistricts();
-        setDistrictId(userDistrictId.toString());
+        await fetchDistricts()
+        setDistrictId(userDistrictId.toString())
       }
 
       if (userSubDivisionId) {
-        await fetchSubdivisions(userDistrictId);
+        await fetchSubdivisions(userDistrictId)
         setSubdivisionId(userSubDivisionId.toString())
       }
 
       if (userBlockId) {
-        await fetchBlocks(userSubDivisionId);
+        await fetchBlocks(userSubDivisionId)
         setBlockId(userBlockId.toString())
       }
 
       if (userGPId) {
-        await fetchGps(userBlockId);
+        await fetchGps(userBlockId)
         setGpId(userGPId.toString())
       }
 
-
-      await fetchSurveyData();
-
+      await fetchSurveyData()
     }
 
-    fixUsersJurisdiction();
+    fixUsersJurisdiction()
   }, [])
 
   // Lazy load Leaflet and set the custom marker icon
@@ -204,21 +199,20 @@ export default function SurveyDashboard() {
     }
   }
 
-
   const fetchSurveyData = async () => {
     try {
-      setIsLoading(true);
+      setIsLoading(true)
 
-      const today = new Date();
-      const start = new Date();
-      start.setDate(today.getDate() - 30);
+      const today = new Date()
+      const start = new Date()
+      start.setDate(today.getDate() - 30)
 
-      setStartDate(start);
-      setEndDate(today);
+      setStartDate(start)
+      setEndDate(today)
 
       // Format dates for API
-      const formattedStartDate = startDate ? startDate : start;
-      const formattedEndDate = endDate ? endDate : today;
+      const formattedStartDate = startDate ? startDate : start
+      const formattedEndDate = endDate ? endDate : today
 
       const response = await fetch(
         "https://tea-garden-survey-api-stagging.vercel.app/api/dropdownList/getTotalHouseholdsSurveyedDetails",
@@ -236,28 +230,28 @@ export default function SurveyDashboard() {
             start_date: formattedStartDate,
             end_date: formattedEndDate,
           }),
-        }
-      );
+        },
+      )
 
-      const data = await response.json();
+      const data = await response.json()
       if (data.success) {
-        setSurveyData(data.data);
-        console.log("survay", data.data);
+        setSurveyData(data.data)
+        console.log("survay", data.data)
       } else {
-        setSurveyData([]);
+        setSurveyData([])
       }
     } catch (error) {
-      console.error("Error fetching survey data:", error);
-      setSurveyData([]);
+      console.error("Error fetching survey data:", error)
+      setSurveyData([])
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   useEffect(() => {
     // Call the API to fetch survey data when the page loads
-    fetchDistricts();
-  }, []);
+    fetchDistricts()
+  }, [])
 
   // Event handlers
   const handleDistrictChange = (value) => {
@@ -316,8 +310,6 @@ export default function SurveyDashboard() {
     setGps([])
   }
 
-
-
   // Table columns configuration
   const columns = [
     {
@@ -355,8 +347,8 @@ export default function SurveyDashboard() {
           size="sm"
           className="cursor-pointer"
           onClick={() => {
-            setSelectedRow(row.original);
-            setIsDialogOpen(true);
+            setSelectedRow(row.original)
+            setIsDialogOpen(true)
           }}
         >
           <Eye className="text-cyan-600 mr-2 h-4 w-4" />
@@ -364,7 +356,7 @@ export default function SurveyDashboard() {
         </Button>
       ),
     },
-  ];
+  ]
 
   return (
     <SidebarProvider
@@ -463,8 +455,6 @@ export default function SurveyDashboard() {
                       </SelectContent>
                     </Select>
                   </div>
-
-
                 </div>
 
                 <div className="flex gap-2 justify-center">
@@ -499,7 +489,7 @@ export default function SurveyDashboard() {
 
               {/* Detail Dialog */}
               <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogContent className="w-[80%] min-w-[80%] h-auto p-0">
+                <DialogContent className="w-[90%] min-w-[90%] max-w-[90%] h-auto p-0">
                   <DialogHeader className="flex items-center bg-cyan-600 text-white p-4 rounded-t-lg">
                     <DialogTitle className="text-4xl font-semibold">Survey Details</DialogTitle>
                   </DialogHeader>
@@ -533,6 +523,20 @@ export default function SurveyDashboard() {
                         <div className="font-semibold">Family Income:</div>
                         <div>₹{Number(selectedRow?.family_income).toLocaleString()}</div>
 
+                        {selectedRow?.family_head_name && (
+                          <>
+                            <div className="font-semibold">Family Head Name:</div>
+                            <div>{selectedRow?.family_head_name}</div>
+                          </>
+                        )}
+
+                        {selectedRow?.family_head_contact_number && (
+                          <>
+                            <div className="font-semibold">Contact Number:</div>
+                            <div>{selectedRow?.family_head_contact_number}</div>
+                          </>
+                        )}
+
                         {selectedRow?.latitude && selectedRow?.longitude && (
                           <>
                             <div className="font-semibold">Latitude:</div>
@@ -542,6 +546,72 @@ export default function SurveyDashboard() {
                             <div>{selectedRow?.longitude}</div>
                           </>
                         )}
+                      </div>
+
+                      {/* Images Section */}
+                      <div className="mt-6">
+                        <h3 className="text-xl font-extrabold mb-4">Images :</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          {/* Family Head Image */}
+                          <div className="flex flex-col items-center">
+                            <div className="font-medium mb-2">Family Head</div>
+                            <div className="border rounded-lg overflow-hidden w-full h-48 flex items-center justify-center bg-gray-100">
+                              {selectedRow?.family_head_img ? (
+                                <img
+                                  src={selectedRow.family_head_img || "/placeholder.svg"}
+                                  alt="Family Head"
+                                  className="object-cover w-full h-full"
+                                />
+                              ) : (
+                                <img
+                                  src="/placeholder.svg?height=200&width=200"
+                                  alt="No Family Head Image"
+                                  className="object-cover w-32 h-32 opacity-50"
+                                />
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Household Image */}
+                          <div className="flex flex-col items-center">
+                            <div className="font-medium mb-2">Household</div>
+                            <div className="border rounded-lg overflow-hidden w-full h-48 flex items-center justify-center bg-gray-100">
+                              {selectedRow?.household_img ? (
+                                <img
+                                  src={selectedRow.household_img || "/placeholder.svg"}
+                                  alt="Household"
+                                  className="object-cover w-full h-full"
+                                />
+                              ) : (
+                                <img
+                                  src="/placeholder.svg?height=200&width=200"
+                                  alt="No Household Image"
+                                  className="object-cover w-32 h-32 opacity-50"
+                                />
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Signature Image */}
+                          <div className="flex flex-col items-center">
+                            <div className="font-medium mb-2">Signature</div>
+                            <div className="border rounded-lg overflow-hidden w-full h-48 flex items-center justify-center bg-gray-100">
+                              {selectedRow?.family_head_signature_img ? (
+                                <img
+                                  src={selectedRow.family_head_signature_img || "/placeholder.svg"}
+                                  alt="Signature"
+                                  className="object-cover w-full h-full"
+                                />
+                              ) : (
+                                <img
+                                  src="/placeholder.svg?height=200&width=200"
+                                  alt="No Signature Image"
+                                  className="object-cover w-32 h-32 opacity-50"
+                                />
+                              )}
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
 
