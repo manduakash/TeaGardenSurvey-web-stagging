@@ -70,11 +70,11 @@ const data = {
       url: "/analytics",
       icon: ChartNoAxesCombined,
     },
-    {
-      title: "Reports",
-      url: "/reports",
-      icon: FileChartPie,
-    },
+    // {
+    //   title: "Reports",
+    //   url: "/reports",
+    //   icon: FileChartPie,
+    // },
     {
       title: "No. of Members",
       url: "/no-of-members",

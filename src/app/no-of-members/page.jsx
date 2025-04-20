@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { format } from "date-fns"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { DatePicker } from "@/components/reusables/date-picker"
+import { getUserData } from "@/utils/cookies"
 
 // Dynamically import react-leaflet components with SSR disabled
 const MapContainer = dynamic(() => import("react-leaflet").then((mod) => mod.MapContainer), {
@@ -53,6 +54,42 @@ export default function SurveyDashboard() {
   // Loading states
   const [isLoading, setIsLoading] = useState(false)
   const [customMarkerIcon, setCustomMarkerIcon] = useState(null)
+
+  useEffect(() => {
+
+    const fixUsersJurisdiction = async () => {
+      const userDistrictId = getUserData().DistrictID ?? 0;
+      const userSubDivisionId = getUserData().SubDivisionID ?? 0;
+      const userBlockId = getUserData().BlockID ?? 0;
+      const userGPId = getUserData().GPID ?? 0
+
+      if (userDistrictId) {
+        await fetchDistricts();
+        setDistrictId(userDistrictId.toString());
+      }
+
+      if (userSubDivisionId) {
+        await fetchSubdivisions(userDistrictId);
+        setSubdivisionId(userSubDivisionId.toString())
+      }
+
+      if (userBlockId) {
+        await fetchBlocks(userSubDivisionId);
+        setBlockId(userBlockId.toString())
+      }
+
+      if (userGPId) {
+        await fetchGps(userBlockId);
+        setGpId(userGPId.toString())
+      }
+
+
+      await fetchSurveyData();
+
+    }
+
+    fixUsersJurisdiction();
+  }, [])
 
   // Lazy load Leaflet and set the custom marker icon
   useEffect(() => {
@@ -210,7 +247,7 @@ export default function SurveyDashboard() {
   useEffect(() => {
     // Call the API to fetch survey data when the page loads
     fetchDistricts()
-    fetchSurveyData()
+    // fetchSurveyData()
   }, [])
 
   // Event handlers
