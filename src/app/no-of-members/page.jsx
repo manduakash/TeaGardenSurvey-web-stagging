@@ -14,6 +14,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { DatePicker } from "@/components/reusables/date-picker"
 import { getUserData } from "@/utils/cookies"
 
+const BASE_URL = process.env.NEXT_PUBLIC_SERVICE_URL;
+
 // Dynamically import react-leaflet components with SSR disabled
 const MapContainer = dynamic(() => import("react-leaflet").then((mod) => mod.MapContainer), {
   ssr: false,
@@ -112,7 +114,7 @@ export default function SurveyDashboard() {
   const fetchDistricts = async () => {
     try {
       const response = await fetch(
-        "https://tea-garden-survey-api-stagging.vercel.app/api/dropdownList/getDistrictsByState",
+        `${BASE_URL}dropdownList/getDistrictsByState`,
         {
           method: "POST",
           headers: {
@@ -136,7 +138,7 @@ export default function SurveyDashboard() {
   const fetchSubdivisions = async (distId) => {
     try {
       const response = await fetch(
-        "https://tea-garden-survey-api-stagging.vercel.app/api/dropdownList/getSubDivisionsByDistrict",
+        `${BASE_URL}dropdownList/getSubDivisionsByDistrict`,
         {
           method: "POST",
           headers: {
@@ -160,7 +162,7 @@ export default function SurveyDashboard() {
   const fetchBlocks = async (subDivId) => {
     try {
       const response = await fetch(
-        "https://tea-garden-survey-api-stagging.vercel.app/api/dropdownList/getBlocksBySubDivision",
+        `${BASE_URL}dropdownList/getBlocksBySubDivision`,
         {
           method: "POST",
           headers: {
@@ -183,7 +185,7 @@ export default function SurveyDashboard() {
 
   const fetchGps = async (blkId) => {
     try {
-      const response = await fetch("https://tea-garden-survey-api-stagging.vercel.app/api/dropdownList/getGPsByBlock", {
+      const response = await fetch(`${BASE_URL}dropdownList/getGPsByBlock`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -211,7 +213,7 @@ export default function SurveyDashboard() {
       const formattedEndDate = endDate ? format(endDate, "yyyy-MM-dd") : ""
 
       const response = await fetch(
-        "https://tea-garden-survey-api-stagging.vercel.app/api/dropdownList/getMemberDetails",
+        `${BASE_URL}dropdownList/getMemberDetails`,
         {
           method: "POST",
           headers: {

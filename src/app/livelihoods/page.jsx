@@ -6,12 +6,35 @@ import { DataTable } from "@/components/data-tables/reusable-datatable"
 import { SiteHeader } from "@/components/site-header"
 import { Button } from "@/components/ui/button"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
-import { Search, Loader2 } from "lucide-react"
+import { Search, Eye, Loader2 } from "lucide-react"
 import { format } from "date-fns"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { DatePicker } from "@/components/reusables/date-picker"
+import { getUserData } from "@/utils/cookies"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import dynamic from "next/dynamic"
 
-export default function SurveyDashboard() {
+const BASE_URL = process.env.NEXT_PUBLIC_SERVICE_URL;
+
+// Dynamically import react-leaflet components with SSR disabled
+const MapContainer = dynamic(() => import("react-leaflet").then((mod) => mod.MapContainer), {
+  ssr: false,
+})
+const TileLayer = dynamic(() => import("react-leaflet").then((mod) => mod.TileLayer), {
+  ssr: false,
+})
+const Marker = dynamic(() => import("react-leaflet").then((mod) => mod.Marker), {
+  ssr: false,
+})
+const Popup = dynamic(() => import("react-leaflet").then((mod) => mod.Popup), {
+  ssr: false,
+})
+
+export default function WelfareDashboard() {
+  // Dialog state
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [selectedRow, setSelectedRow] = useState(null)
+
   // Date filter states
   const [startDate, setStartDate] = useState(undefined)
   const [endDate, setEndDate] = useState(undefined)
@@ -22,22 +45,74 @@ export default function SurveyDashboard() {
   const [subdivisionId, setSubdivisionId] = useState("")
   const [blockId, setBlockId] = useState("")
   const [gpId, setGpId] = useState("")
+  const [villageId, setVillageId] = useState(1) // Default value
 
   // Data states
   const [districts, setDistricts] = useState([])
   const [subdivisions, setSubdivisions] = useState([])
   const [blocks, setBlocks] = useState([])
   const [gps, setGps] = useState([])
-  const [surveyData, setSurveyData] = useState([])
+  const [welfareData, setWelfareData] = useState([])
 
   // Loading states
   const [isLoading, setIsLoading] = useState(false)
+  const [customMarkerIcon, setCustomMarkerIcon] = useState(null)
+
+  useEffect(() => {
+    const fixUsersJurisdiction = async () => {
+      const userDistrictId = getUserData().DistrictID ?? 1
+      const userSubDivisionId = getUserData().SubDivisionID ?? 1
+      const userBlockId = getUserData().BlockID ?? 1
+      const userGPId = getUserData().GPID ?? 1
+
+      if (userDistrictId) {
+        await fetchDistricts()
+        setDistrictId(userDistrictId.toString())
+      }
+
+      if (userSubDivisionId) {
+        await fetchSubdivisions(userDistrictId)
+        setSubdivisionId(userSubDivisionId.toString())
+      }
+
+      if (userBlockId) {
+        await fetchBlocks(userSubDivisionId)
+        setBlockId(userBlockId.toString())
+      }
+
+      if (userGPId) {
+        await fetchGps(userBlockId)
+        setGpId(userGPId.toString())
+      }
+
+      await fetchWelfareData()
+    }
+
+    fixUsersJurisdiction()
+  }, [])
+
+  // Lazy load Leaflet and set the custom marker icon
+  useEffect(() => {
+    async function loadLeaflet() {
+      const L = (await import("leaflet")).default
+      const icon = new L.Icon({
+        iconUrl: "https://unpkg.com/leaflet@1.9.3/dist/images/marker-icon.png",
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowUrl: "https://unpkg.com/leaflet@1.9.3/dist/images/marker-shadow.png",
+        shadowSize: [41, 41],
+      })
+      setCustomMarkerIcon(icon)
+    }
+    loadLeaflet()
+  }, [])
 
   // API calls
   const fetchDistricts = async () => {
     try {
       const response = await fetch(
-        "https://tea-garden-survey-api-stagging.vercel.app/api/dropdownList/getDistrictsByState",
+        `${BASE_URL}dropdownList/getDistrictsByState`,
         {
           method: "POST",
           headers: {
@@ -61,7 +136,7 @@ export default function SurveyDashboard() {
   const fetchSubdivisions = async (distId) => {
     try {
       const response = await fetch(
-        "https://tea-garden-survey-api-stagging.vercel.app/api/dropdownList/getSubDivisionsByDistrict",
+        `${BASE_URL}dropdownList/getSubDivisionsByDistrict`,
         {
           method: "POST",
           headers: {
@@ -85,7 +160,7 @@ export default function SurveyDashboard() {
   const fetchBlocks = async (subDivId) => {
     try {
       const response = await fetch(
-        "https://tea-garden-survey-api-stagging.vercel.app/api/dropdownList/getBlocksBySubDivision",
+        `${BASE_URL}dropdownList/getBlocksBySubDivision`,
         {
           method: "POST",
           headers: {
@@ -108,7 +183,7 @@ export default function SurveyDashboard() {
 
   const fetchGps = async (blkId) => {
     try {
-      const response = await fetch("https://tea-garden-survey-api-stagging.vercel.app/api/dropdownList/getGPsByBlock", {
+      const response = await fetch(`${BASE_URL}dropdownList/getGPsByBlock`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -127,7 +202,7 @@ export default function SurveyDashboard() {
     }
   }
 
-  const fetchSurveyData = async () => {
+  const fetchWelfareData = async () => {
     try {
       setIsLoading(true)
 
@@ -136,7 +211,7 @@ export default function SurveyDashboard() {
       const formattedEndDate = endDate ? format(endDate, "yyyy-MM-dd") : ""
 
       const response = await fetch(
-        "https://tea-garden-survey-api-stagging.vercel.app/api/dropdownList/getWelfareProgramCountAnalytics",
+        `${BASE_URL}dropdownList/getTotalLivelihoodDetails`,
         {
           method: "POST",
           headers: {
@@ -147,7 +222,7 @@ export default function SurveyDashboard() {
             district_id: districtId ? Number.parseInt(districtId) : 0,
             subdivision_id: subdivisionId ? Number.parseInt(subdivisionId) : 0,
             block_id: blockId ? Number.parseInt(blockId) : 0,
-            village_id: 0, // Not used in the filter UI
+            village_id: villageId,
             start_date: formattedStartDate,
             end_date: formattedEndDate,
           }),
@@ -156,23 +231,22 @@ export default function SurveyDashboard() {
 
       const data = await response.json()
       if (data.success) {
-        setSurveyData(data.data);
-        console.log("survey data", data.data);
+        setWelfareData(data.data)
+        console.log("welfare data", data.data)
       } else {
-        setSurveyData([])
+        setWelfareData([])
       }
     } catch (error) {
-      console.error("Error fetching survey data:", error)
-      setSurveyData([])
+      console.error("Error fetching welfare data:", error)
+      setWelfareData([])
     } finally {
       setIsLoading(false)
     }
   }
 
   useEffect(() => {
-    // Call the API to fetch survey data when the page loads
+    // Call the API to fetch districts when the page loads
     fetchDistricts()
-    fetchSurveyData()
   }, [])
 
   // Event handlers
@@ -217,7 +291,7 @@ export default function SurveyDashboard() {
   }
 
   const handleSearch = () => {
-    fetchSurveyData()
+    fetchWelfareData()
   }
 
   const clearFilters = () => {
@@ -232,51 +306,57 @@ export default function SurveyDashboard() {
     setGps([])
   }
 
-  // Table columns configuration
+  // Table columns configuration for welfare data
   const columns = [
     {
       accessorKey: "survey_id",
       header: "Survey ID",
     },
     {
-      accessorKey: "name",
-      header: "Name",
+      accessorKey: "state",
+      header: "State",
     },
     {
-      accessorKey: "village_name",
+      accessorKey: "district",
+      header: "District",
+    },
+    {
+      accessorKey: "sub_division",
+      header: "Sub Division",
+    },
+    {
+      accessorKey: "block",
+      header: "Block",
+    },
+    {
+      accessorKey: "gp",
+      header: "Gram Panchayat",
+      cell: ({ row }) => row.original.gp || "N/A",
+    },
+    {
+      accessorKey: "village",
       header: "Village",
+      cell: ({ row }) => row.original.village || "N/A",
     },
     {
-      accessorKey: "gender",
-      header: "Gender",
+      id: "actions",
+      header: "Actions",
+      cell: ({ row }) => (
+        <Button
+          variant="outline"
+          size="sm"
+          className="cursor-pointer"
+          onClick={() => {
+            setSelectedRow(row.original)
+            setIsDialogOpen(true)
+          }}
+        >
+          <Eye className="text-cyan-600 mr-2 h-4 w-4" />
+          View
+        </Button>
+      ),
     },
-    {
-      accessorKey: "dob",
-      header: "Date of Birth",
-      cell: ({ row }) => {
-        const dobValue = row.original.dob;
-
-        if (!dobValue) {
-          return "N/A"; // Return "N/A" if dob is null, undefined, or empty
-        }
-
-        try {
-          const date = new Date(dobValue);
-          if (isNaN(date.getTime())) { // Check if date is a valid Date object
-            return "Invalid Date"; // Return "Invalid Date" if parsing fails
-          }
-          return format(date, "dd/MM/yyyy");
-        } catch (error) {
-          console.error("Error formatting date:", error);
-          return "Error"; // Return "Error" in case of any unexpected error during formatting
-        }
-      },
-    },
-    {
-      accessorKey: "age",
-      header: "Age",
-    },
-  ];
+  ]
 
   return (
     <SidebarProvider
@@ -359,7 +439,7 @@ export default function SurveyDashboard() {
 
                   {/* GP Dropdown */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Select Gramp-Panchayat</label>
+                    <label className="block text-sm font-medium text-gray-700">Select Gram-Panchayat</label>
                     <Select value={gpId} onValueChange={handleGpChange} disabled={!blockId}>
                       <SelectTrigger className="w-full hover:bg-slate-100">
                         <SelectValue placeholder="Select GP" />
@@ -403,8 +483,50 @@ export default function SurveyDashboard() {
 
               {/* Data Table */}
               <div className="overflow-hidden rounded-t-4xl">
-                <DataTable data={surveyData} columns={columns} loading={isLoading} />
+                <DataTable data={welfareData} columns={columns} loading={isLoading} />
               </div>
+
+              {/* Detail Dialog */}
+              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                <DialogContent className="w-[80%] min-w-[80%] h-auto p-0">
+                  <DialogHeader className="flex items-center bg-cyan-600 text-white p-4 rounded-t-lg">
+                    <DialogTitle className="text-4xl font-semibold">Survey Details</DialogTitle>
+                  </DialogHeader>
+
+                  <div className="grid grid-cols-1 xl:grid-cols-2 w-full">
+                    {/* Left Side: Survey Details */}
+                    <div className="overflow-y-auto px-8 py-6">
+                      <div className="grid grid-cols-2 gap-2 text-lg">
+                        <div className="font-semibold">Family Head Name :</div>
+                        <div>{selectedRow?.family_head_name || "N/A"}</div>
+
+                        <div className="font-semibold">Family Head Contact No :</div>
+                        <div>{selectedRow?.family_head_contact_number || "N/A"}</div>
+
+                        <div className="font-semibold">SHG Member :</div>
+                        <div>{selectedRow?.shg_member || 0}</div>
+
+                        <div className="font-semibold">Wants To Join SHG :</div>
+                        <div>{selectedRow?.wants_to_join_shg || "N/A"}</div>
+
+                        <div className="font-semibold">Training required:</div>
+                        <div>{selectedRow?.training_required || "N/A"}</div>
+
+                        <div className="font-semibold">Training Name:</div>
+                        <div>{selectedRow?.training_name || "N/A"}</div>
+
+                        <div className="font-semibold">Created At:</div>
+                        <div>
+                          {selectedRow?.created_at
+                            ? format(new Date(selectedRow.created_at), "dd/MM/yyyy hh:mm a")
+                            : "N/A"}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
+
             </div>
           </div>
         </div>
