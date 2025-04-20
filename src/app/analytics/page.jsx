@@ -38,6 +38,8 @@ ChartJS.register(
 );
 
 export default function Page() {
+  const serviceurl = process.env.NEXT_PUBLIC_SERVICE_URL
+
   // Date filter states
   const [startDate, setStartDate] = useState(undefined)
   const [endDate, setEndDate] = useState(undefined)
@@ -57,14 +59,21 @@ export default function Page() {
   const [surveyData, setSurveyData] = useState([])
   const [isLoading, setIsLoading] = useState(false)
   const [customMarkerIcon, setCustomMarkerIcon] = useState(null)
+  const [healthCount, setHealthCount] = useState(0)
+  const [enrollmentCount, setEnrollmentCount] = useState(0)
+  const [welfareProgramsCount, setWelfareProgramsCount] = useState(0)
+  const [lowBirthWeightCount, setLowBirthWeightCount] = useState(0)
+  const [HouseHoldCount, setHouseHoldCount] = useState([])
   // Fetch districts on initial load
   useEffect(() => {
+
 
     const fixUsersJurisdiction = async () => {
       const userDistrictId = getUserData().DistrictID ?? 0;
       const userSubDivisionId = getUserData().SubDivisionID ?? 0;
       const userBlockId = getUserData().BlockID ?? 0;
       const userGPId = getUserData().GPID ?? 0
+
 
       if (userDistrictId) {
         await fetchDistricts();
@@ -112,7 +121,7 @@ export default function Page() {
   const fetchDistricts = async () => {
     try {
       const response = await fetch(
-        "https://tea-garden-survey-api-stagging.vercel.app/api/dropdownList/getDistrictsByState",
+        `${serviceurl}dropdownList/getDistrictsByState`,
         {
           method: "POST",
           headers: {
@@ -136,7 +145,7 @@ export default function Page() {
   const fetchSubdivisions = async (distId) => {
     try {
       const response = await fetch(
-        "https://tea-garden-survey-api-stagging.vercel.app/api/dropdownList/getSubDivisionsByDistrict",
+        `${serviceurl}dropdownList/getSubDivisionsByDistrict`,
         {
           method: "POST",
           headers: {
@@ -160,7 +169,7 @@ export default function Page() {
   const fetchBlocks = async (subDivId) => {
     try {
       const response = await fetch(
-        "https://tea-garden-survey-api-stagging.vercel.app/api/dropdownList/getBlocksBySubDivision",
+        `${serviceurl}dropdownList/getBlocksBySubDivision`,
         {
           method: "POST",
           headers: {
@@ -183,7 +192,7 @@ export default function Page() {
 
   const fetchGps = async (blkId) => {
     try {
-      const response = await fetch("https://tea-garden-survey-api-stagging.vercel.app/api/dropdownList/getGPsByBlock", {
+      const response = await fetch(`${serviceurl}dropdownList/getGPsByBlock`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -205,7 +214,95 @@ export default function Page() {
   useEffect(() => {
     // Call the API to fetch survey data when the page loads
     fetchDistricts();
+    fetchAnalyticsData()
   }, []);
+
+  const fetchAnalyticsData = async () => {
+    try {
+      setIsLoading(true);
+
+      const today = new Date();
+      const start = new Date();
+      start.setDate(today.getDate() - 30);
+
+      const formattedStartDate = startDate || start;
+      const formattedEndDate = endDate || today;
+
+      setStartDate(formattedStartDate);
+      setEndDate(formattedEndDate);
+
+      const user_details = getUserData()
+      console.log("hi",user_details);
+
+      const payload = {
+        state_id: stateId ?? user_details.StateID ,
+        district_id:  user_details.DistrictID,
+        subdivision_id: user_details.SubDivisionID,
+        block_id:  user_details.BlockID,
+        village_id: gpId ?? user_details.GPID,
+        from_date: formattedStartDate,
+        to_date: formattedEndDate,
+      };
+
+      const [houseHoldRes, healthRes, enrollmentRes, welfareProgramsRes, lowBithWeigthRes] = await Promise.all([
+        fetch(`${serviceurl}dropdownList/getHouseholdSurveyCountAnalytics`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        }),
+        fetch(`${serviceurl}dropdownList/getHealthDetailsCountAnalytics`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        }),
+        fetch(`${serviceurl}dropdownList/getSchemeEnrollmentCountAnalytics`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        }),
+        fetch(`${serviceurl}dropdownList/getWelfareProgramCountAnalytics`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        }),
+        fetch(`${serviceurl}dropdownList/getLowBirthWeigthCountAnalytics`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        }),
+      ]);
+
+      const [houseHoldData, healthData, enrollmentData, welfareProgramsData, lowBirthWeightData] = await Promise.all([
+        houseHoldRes.json(),
+        healthRes.json(),
+        enrollmentRes.json(),
+        welfareProgramsRes.json(),
+        lowBithWeigthRes.json()
+      ]);
+
+      if (houseHoldData.success && healthData.success && enrollmentData.success && welfareProgramsData.success && lowBirthWeightData.success) {
+        setHouseHoldCount(houseHoldData?.data)
+        setHealthCount(healthData.data[0]);
+        setEnrollmentCount(enrollmentData.data[0]);
+        setWelfareProgramsCount(welfareProgramsData.data[0]);
+        setLowBirthWeightCount(lowBirthWeightData.data[0]);
+        console.log("survey", healthData.data[0]);
+        console.log("enrollment", enrollmentData.data[0]);
+        console.log("low", lowBirthWeightData.data[0]);
+        console.log("data", houseHoldData?.data);
+
+
+      } else {
+        setSurveyData([]);
+      }
+    } catch (error) {
+      console.error("Error fetching survey data:", error);
+      setSurveyData([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
 
   // Event handlers
   const handleDistrictChange = (value) => {
@@ -266,11 +363,11 @@ export default function Page() {
 
   // Example Data for Charts
   const householdSurveyData = {
-    labels: ["Household 1", "Household 2", "Household 3", "Household 4"],
+    labels: HouseHoldCount.map(item => item.jurisdiction_name),
     datasets: [
       {
-        label: "Number of Members",
-        data: [5, 7, 4, 6],
+        label: "Number of Surveys",
+        data: HouseHoldCount.map(item => item.survey_count),
         backgroundColor: "rgba(75, 192, 192, 0.5)",
         borderColor: "rgba(75, 192, 192, 1)",
         borderWidth: 1,
@@ -279,34 +376,53 @@ export default function Page() {
   };
 
   const healthMetricsData = {
-    labels: ["BP Cases", "Sugar Cases", "SAM Cases", "MAM Cases"],
+    labels: [
+      "High BP Cases",
+      "Low BP Cases",
+      "High Sugar Cases",
+      "Low Sugar Cases",
+      "SAM Cases",
+      "MAM Cases"
+    ],
     datasets: [
       {
         label: "Health Metrics",
-        data: [40, 30, 15, 10],
+        data: [
+          healthCount?.total_high_bp_cases,
+          healthCount?.total_low_bp_cases,
+          healthCount?.total_high_sugar_cases,
+          healthCount?.total_low_sugar_cases,
+          healthCount?.total_sam_cases,
+          healthCount?.total_mam_cases
+        ],
         backgroundColor: [
-          "rgba(255, 99, 132, 0.5)",
-          "rgba(54, 162, 235, 0.5)",
-          "rgba(255, 206, 86, 0.5)",
-          "rgba(75, 192, 192, 0.5)",
+          "rgba(255, 99, 132, 0.5)",   // Red
+          "rgba(54, 162, 235, 0.5)",   // Blue
+          "rgba(255, 206, 86, 0.5)",   // Yellow
+          "rgba(75, 192, 192, 0.5)",   // Teal
+          "rgba(153, 102, 255, 0.5)",  // Purple
+          "rgba(255, 159, 64, 0.5)"    // Orange
         ],
         borderColor: [
           "rgba(255, 99, 132, 1)",
           "rgba(54, 162, 235, 1)",
           "rgba(255, 206, 86, 1)",
           "rgba(75, 192, 192, 1)",
+          "rgba(153, 102, 255, 1)",
+          "rgba(255, 159, 64, 1)"
         ],
         borderWidth: 1,
       },
     ],
   };
 
+
   const schemeEnrollmentData = {
     labels: ["Swasthya Sathi", "SC/ST Card", "SHG Membership"],
     datasets: [
       {
         label: "Scheme Enrollment",
-        data: [70, 50, 40],
+        data: [enrollmentCount?.total_swasthya_sathi_enrollment, enrollmentCount?.total_sc_st_cases, enrollmentCount?.total_shg_memberships],
         backgroundColor: [
           "rgba(153, 102, 255, 0.5)",
           "rgba(255, 159, 64, 0.5)",
@@ -340,7 +456,7 @@ export default function Page() {
     datasets: [
       {
         label: "Birthweight Cases",
-        data: [80, 20],
+        data: [lowBirthWeightCount?.total_normal_birthweigth, lowBirthWeightCount?.total_low_birthweigth],
         backgroundColor: ["rgba(75, 192, 192, 0.5)", "rgba(255, 99, 132, 0.5)"],
         borderColor: ["rgba(75, 192, 192, 1)", "rgba(255, 99, 132, 1)"],
         borderWidth: 1,
@@ -362,11 +478,11 @@ export default function Page() {
   };
 
   const welfareProgramsData = {
-    labels: ["Welfare Program 1", "Welfare Program 2", "Welfare Program 3", "Welfare Program 4", "Welfare Program 5", "Welfare Program 6"],
+    labels: ["Sc St Caste", "Swasthya Sathi Welfare", "Old Pension Scheme Welfare", "Laksmhir Bhandar"],
     datasets: [
       {
         label: "Welfare Programs",
-        data: [50, 30, 20, 10, 5, 20],
+        data: [welfareProgramsCount?.total_sc_st_caste_count, welfareProgramsCount?.total_swasthya_sathi_welfare, welfareProgramsCount?.total_old_pension_scheme_welfare, welfareProgramsCount?.total_laksmhir_bhandar_count],
         backgroundColor: [
           "rgba(255, 206, 86, 0.5)",
           "rgba(153, 102, 255, 0.5)",
@@ -381,6 +497,116 @@ export default function Page() {
       },
     ],
   };
+
+  const BarChartSkeleton = () => {
+    return (
+      <div className="w-full h-64 p-4 flex flex-col justify-between">
+        <div className="animate-pulse h-full flex items-end gap-48">
+          {/* Simulated bars */}
+          <div className="bg-gray-200 rounded-md w-72 h-2/4"></div>
+          <div className="bg-gray-200 rounded-md w-72 h-3/4"></div>
+          <div className="bg-gray-200 rounded-md w-72 h-1/2"></div>
+          <div className="bg-gray-200 rounded-md w-72 h-2/3"></div>
+        </div>
+        <div className="flex justify-between mt-4 text-xs text-gray-400">
+          {/* <span>Household 1</span>
+          <span>Household 2</span>
+          <span>Household 3</span>
+          <span>Household 4</span> */}
+        </div>
+      </div>
+    );
+  };
+
+  const HealthMetricsSkeleton = () => {
+    return (
+      <div className="w-full h-72 flex flex-col items-center justify-between animate-pulse">
+        {/* Legend blocks */}
+        <div className="grid grid-cols-2 gap-2 mb-4 w-full">
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className="flex items-center gap-2">
+              <div className="w-3 h-3 bg-gray-300 rounded-sm" />
+              <div className="h-3 w-20 bg-gray-300 rounded" />
+            </div>
+          ))}
+        </div>
+
+        {/* Circular Pie placeholder */}
+        <div className="w-60 h-60 bg-gray-200 rounded-full" />
+      </div>
+    );
+  };
+  const SchemeEnrollmentSkeleton = () => (
+    <div className="h-64 w-full flex flex-col justify-between animate-pulse">
+      <div className="h-5 w-40 bg-gray-200 rounded mb-2" />
+      <div className="h-full w-full bg-gray-100 rounded-lg relative overflow-hidden">
+        {/* Simulated line */}
+        <div className="absolute bottom-4 left-4 right-4 h-0.5 bg-gray-300" />
+        {/* Points */}
+        <div className="absolute bottom-16 left-[15%] w-3 h-3 bg-gray-300 rounded-full" />
+        <div className="absolute bottom-24 left-[45%] w-3 h-3 bg-gray-300 rounded-full" />
+        <div className="absolute bottom-8 left-[75%] w-3 h-3 bg-gray-300 rounded-full" />
+      </div>
+    </div>
+  );
+  const ShgCreditLinkageSkeleton = () => (
+    <div className="h-64 w-full flex flex-col items-center justify-center animate-pulse">
+      {/* Legend */}
+      <div className="flex gap-4 mb-4">
+        <div className="flex items-center gap-2">
+          <div className="w-3 h-3 bg-gray-300 rounded-sm" />
+          <div className="h-3 w-20 bg-gray-300 rounded" />
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-3 h-3 bg-gray-300 rounded-sm" />
+          <div className="h-3 w-24 bg-gray-300 rounded" />
+        </div>
+      </div>
+
+      {/* Donut */}
+      <div className="w-40 h-40 border-[14px] border-gray-300 rounded-full border-t-gray-200" />
+      <div className="absolute w-20 h-20 bg-white rounded-full" />
+    </div>
+  );
+  const LowBirthweightCasesSkeleton = () => (
+    <div className="h-64 w-full flex flex-col items-center justify-center animate-pulse">
+      {/* Legend */}
+      <div className="flex gap-4 mb-4">
+        <div className="flex items-center gap-2">
+          <div className="w-3 h-3 bg-gray-300 rounded-sm" />
+          <div className="h-3 w-24 bg-gray-300 rounded" />
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-3 h-3 bg-gray-300 rounded-sm" />
+          <div className="h-3 w-20 bg-gray-300 rounded" />
+        </div>
+      </div>
+
+      {/* Circular radar-style rings */}
+      <div className="relative w-40 h-40">
+        <div className="absolute inset-0 rounded-full border-4 border-gray-200" />
+        <div className="absolute inset-3 rounded-full border-4 border-gray-200" />
+        <div className="absolute inset-6 rounded-full border-4 border-gray-200" />
+      </div>
+    </div>
+  );
+
+  const WelfareProgramsSkeleton = () => (
+    <div className="h-96 w-full flex flex-col animate-pulse">
+      {/* Title Placeholder */}
+      <div className="h-5 w-48 bg-gray-200 rounded mb-4" />
+
+      {/* Chart Area */}
+      <div className="flex items-end justify-around h-full bg-gray-100 rounded-lg p-4">
+        {/* Simulated bars */}
+        <div className="w-72 h-40 bg-gray-300 rounded" />
+        <div className="w-72 h-28 bg-gray-300 rounded" />
+        <div className="w-72 h-20 bg-gray-300 rounded" />
+        <div className="w-72 h-32 bg-gray-300 rounded" />
+      </div>
+    </div>
+  );
+
 
   return (
     <SidebarProvider
@@ -487,7 +713,7 @@ export default function Page() {
               <div className="flex gap-2 justify-center">
                 <Button
                   className="bg-green-100 hover:bg-green-300 border-[1px] border-green-600 text-slate-800 px-8 cursor-pointer"
-                  onClick={handleSearch}
+                  onClick={fetchAnalyticsData}
                   disabled={isLoading}
                 >
                   {isLoading ? (
@@ -509,16 +735,17 @@ export default function Page() {
 
           {/* Charts Section (Second Row Onwards) */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
-            {/* Bar Chart: Household Survey */}
+            {/*    Chart: Household Survey */}
             <div className="col-span-2 bg-white p-4 rounded-lg shadow-md">
               <h2 className="text-xl font-bold mb-4">Household Survey Data</h2>
-              <Bar data={householdSurveyData} />
+              {isLoading ? <BarChartSkeleton height="h-84" /> : <Bar data={householdSurveyData} />}
             </div>
 
             {/* Pie Chart: Health Metrics */}
             <div className="col-span-1 bg-white p-4 rounded-lg shadow-md">
               <h2 className="text-xl font-bold mb-4">Health Metrics</h2>
-              <Pie data={healthMetricsData} />
+              {/* <Pie data={healthMetricsData} /> */}
+              {isLoading ? <HealthMetricsSkeleton height="h-84" /> : <Pie data={healthMetricsData} />}
             </div>
 
             {/* Line Chart: Scheme Enrollment */}
@@ -526,26 +753,31 @@ export default function Page() {
               <h2 className="text-xl font-bold mb-4">Scheme Enrollment</h2>
               <div className="my-auto py-auto flex flex-col justify-between">
                 <h2 className="text-xl font-bold mb-4 text-transparent py-4">s</h2>
-                <Line data={schemeEnrollmentData} />
+                {/* <Line data={schemeEnrollmentData} /> */}
+                {isLoading ? <SchemeEnrollmentSkeleton /> : <Line data={schemeEnrollmentData} />}
               </div>
             </div>
 
             {/* Doughnut Chart: SHG & Credit Linkage */}
             <div className="bg-white p-4 rounded-lg shadow-md">
               <h2 className="text-xl font-bold mb-4">SHG & Credit Linkage</h2>
-              <Doughnut data={shgCreditLinkageData} />
+              {/* <Doughnut data={shgCreditLinkageData} /> */}
+              {isLoading ? <ShgCreditLinkageSkeleton /> : <Doughnut data={shgCreditLinkageData} />}
             </div>
 
             {/* Polar Area Chart: Low Birthweight Cases */}
             <div className="bg-white p-4 rounded-lg shadow-md">
               <h2 className="text-xl font-bold mb-4">Low Birthweight Cases</h2>
-              <PolarArea data={lowBirthWeightData} />
+              {/* <PolarArea data={lowBirthWeightData} /> */}
+              {isLoading ? <LowBirthweightCasesSkeleton /> : <PolarArea data={lowBirthWeightData} />}
             </div>
 
             {/* Bar Chart: Welfare Programs */}
             <div className="col-span-3 bg-white p-4 rounded-lg shadow-md">
               <h2 className="text-xl font-bold mb-4">Welfare Programs</h2>
-              <Bar data={welfareProgramsData} />
+              {/* <Bar data={welfareProgramsData} /> */}
+              {isLoading ? <WelfareProgramsSkeleton /> : <Bar data={welfareProgramsData} />}
+
             </div>
           </div>
         </div>
