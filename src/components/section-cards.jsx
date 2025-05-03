@@ -211,7 +211,7 @@ export function SectionCards({ dashboardCount, isLoading }) {
                     <span className="flex relative justify-center items-center gap-2 text-sm"><FcBusinessman className="h-5 w-5 text-green-600 z-1" /><TrendingDown className="left-2.5 absolute h-4 w-4 text-violet-600 z-0" />
                       Low BP Male Cases:</span> <span className="font-semibold">{dashboardCount?.low_bp_all ?? 0}</span>
                   </div>
-                  <Button variant="outline" size={"sm"} className="group mx-auto p-0 rounded-2xl bg-violet-200 hover:bg-violet-200 border-slate-300 hover:ring-violet-500 hover:ring-1"><Link href="/health-metrics" className="m-0 p-2 flex justify-center items-center gap-2 text-xs">show more <ArrowRightIcon className="text-slate-400 group-hover:text-violet-700"/></Link></Button>
+                  <Button variant="outline" size={"sm"} className="group mx-auto p-0 rounded-2xl bg-violet-200 hover:bg-violet-200 border-slate-300 hover:ring-violet-500 hover:ring-1"><Link href="/health-metrics/bp-cases" className="m-0 p-2 flex justify-center items-center gap-2 text-xs">show more <ArrowRightIcon className="text-slate-400 group-hover:text-violet-700"/></Link></Button>
                 </CardFooter>
               </Card>
             </div>
@@ -241,7 +241,7 @@ export function SectionCards({ dashboardCount, isLoading }) {
                     <span className="flex justify-center items-center gap-2 text-sm"><FcBusinessman className="h-5 w-5 text-green-600 z-1" /><TrendingDown className="left-2.5 absolute h-4 w-4 text-violet-600 z-0" />
                     Low Sugar Male Cases:</span> <span className="font-semibold">{dashboardCount?.low_sugar_all ?? 0}</span>
                   </div>
-                  <Button variant="outline" size={"sm"} className="group mx-auto p-0 rounded-2xl bg-violet-200 hover:bg-violet-200 border-slate-300 hover:ring-violet-500 hover:ring-1"><Link href="/health-metrics" className="m-0 p-2 flex justify-center items-center gap-2 text-xs">show more <ArrowRightIcon className="text-slate-400 group-hover:text-violet-700"/></Link></Button>
+                  <Button variant="outline" size={"sm"} className="group mx-auto p-0 rounded-2xl bg-violet-200 hover:bg-violet-200 border-slate-300 hover:ring-violet-500 hover:ring-1"><Link href="/health-metrics/sugar-cases" className="m-0 p-2 flex justify-center items-center gap-2 text-xs">show more <ArrowRightIcon className="text-slate-400 group-hover:text-violet-700"/></Link></Button>
                 </CardFooter>
               </Card>
             </div>
@@ -272,7 +272,7 @@ export function SectionCards({ dashboardCount, isLoading }) {
                       Old Age Pension:</span> <span className="font-semibold">{dashboardCount?.old_age_pension_women ?? 0}</span>
                   </div>
 
-                  <Button variant="outline" size={"sm"} className="group mx-auto p-0 rounded-2xl bg-violet-200 hover:bg-violet-200 border-slate-300 hover:ring-violet-500 hover:ring-1"><Link href="/health-metrics" className="m-0 p-2 flex justify-center items-center gap-2 text-xs">show more <ArrowRightIcon className="text-slate-400 group-hover:text-violet-700"/></Link></Button>
+                  <Button variant="outline" size={"sm"} className="group mx-auto p-0 rounded-2xl bg-violet-200 hover:bg-violet-200 border-slate-300 hover:ring-violet-500 hover:ring-1"><Link href="/welfare" className="m-0 p-2 flex justify-center items-center gap-2 text-xs">show more <ArrowRightIcon className="text-slate-400 group-hover:text-violet-700"/></Link></Button>
                 </CardFooter>
               </Card>
             </div>

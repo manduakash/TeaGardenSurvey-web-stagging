@@ -140,11 +140,9 @@ export default function Page() {
 
       if (type_of_search) {
         if (type_of_search == "sam") {
-          setNutritionStatus("SAM");
-          fetchHealthSurveyData();
+          fetchHealthSurveyData("sam");
         } else if (type_of_search == "mam") {
-          setNutritionStatus("MAM");
-          fetchHealthSurveyData();
+          fetchHealthSurveyData("mam");
         } else {
           fetchHealthSurveyData();
         }
@@ -199,7 +197,7 @@ export default function Page() {
     }
   }
 
-  const fetchHealthSurveyData = async () => {
+  const fetchHealthSurveyData = async (type) => {
     try {
       setIsLoading(true);
 
@@ -229,7 +227,7 @@ export default function Page() {
             village_id: 0,
             start_date: formattedStartDate,
             end_date: formattedEndDate,
-            nutrition_status: nutritionStatus,
+            nutrition_status: type == "sam" ? "SAM" : type == "mam" ? "MAM" : nutritionStatus,
             bp_status: bpStatus,
             blood_sugar: bloodSugar,
             gender: gender,
