@@ -45,7 +45,7 @@ export default function Page() {
   const [blocks, setBlocks] = useState([])
   const [gps, setGps] = useState([])
   const [surveyData, setSurveyData] = useState([])
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
 
   const [nutritionStatus, setNutritionStatus] = useState("ALL")
   const [bpStatus, setBpStatus] = useState("ALL")
@@ -140,8 +140,10 @@ export default function Page() {
 
       if (type_of_search) {
         if (type_of_search == "sam") {
+          setNutritionStatus("SAM")
           fetchHealthSurveyData("sam");
         } else if (type_of_search == "mam") {
+          setNutritionStatus("MAM")
           fetchHealthSurveyData("mam");
         } else {
           fetchHealthSurveyData();

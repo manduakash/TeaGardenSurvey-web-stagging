@@ -77,11 +77,7 @@ export function SectionCards({ dashboardCount, isLoading }) {
       footerTextColor: "text-sm text-amber-600 dark:text-slate-400",
       cardClass: "border-2 bg-amber-100 hover:border-amber-400 border-slate-300",
       link: "/no-of-members",
-      badge: {
-        text: "-8%",
-        className: "text-red-500 bg-red-50",
-        icon: <IconTrendingDown />,
-      },
+      badge: null,
     },
     {
       description: "Total SAM Cases",

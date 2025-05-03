@@ -224,7 +224,9 @@ export function DataTable({ columns, data: initialData, loading = false }) {
                         ) : table.getRowModel().rows.length ? (
                             table.getRowModel().rows.map((row, rowIndex) => (
                                 <TableRow key={row.id}>
-                                    <TableCell className="text-center font-semibold">{rowIndex + 1}</TableCell>
+                                    <TableCell className="text-center font-semibold">
+                                        {(pagination?.pageIndex) * pagination?.pageSize + rowIndex + 1}
+                                    </TableCell>
                                     {row.getVisibleCells().map((cell) => (
                                         <TableCell key={cell.id}>
                                             {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -240,41 +242,45 @@ export function DataTable({ columns, data: initialData, loading = false }) {
                     </TableBody>
                 </Table>
 
-                <div className="flex items-center justify-between p-4">
-                    <div className="flex items-center gap-2">
-                        <Label className="text-sm text-slate-700">Rows per page</Label>
-                        <Select value={`${pagination.pageSize}`} onValueChange={(value) => table.setPageSize(Number(value))}>
-                            <SelectTrigger className="w-20">
-                                <SelectValue placeholder={pagination.pageSize} />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {[10, 20, 30, 40, 50].map((size) => (
-                                    <SelectItem key={size} value={`${size}`}>{size}</SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
-                    <div className="text-muted-foreground">Page <b className="text-slate-600">{pagination.pageIndex + 1}</b> of {table.getPageCount()}</div>
-                    <div className="flex justify-center gap-2 items-center">
-                        <Button variant="outline" onClick={() => table.setPageIndex(0)} disabled={!table.getCanPreviousPage()}>
-                            <ChevronsLeft />
-                        </Button>
-                        <Button variant="outline" onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>
-                            <ChevronLeft />
-                        </Button>
-                        <div className="flex gap-1">
-                            {Array.from({ length: table.getPageCount() }, (_, i) => (
-                                <Button key={i} variant={pagination.pageIndex === i ? "default" : "outline"} onClick={() => table.setPageIndex(i)}>
-                                    {i + 1}
-                                </Button>
-                            ))}
+                <div className="flex items-center flex-col justify-between p-4">
+                    <div className="flex justify-between gap-2 w-full">
+                        <div className="flex items-center gap-2">
+                            <Label className="text-sm text-slate-700">Rows per page</Label>
+                            <Select value={`${pagination.pageSize}`} onValueChange={(value) => table.setPageSize(Number(value))}>
+                                <SelectTrigger className="w-20">
+                                    <SelectValue placeholder={pagination.pageSize} />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {[10, 20, 30, 40, 50].map((size) => (
+                                        <SelectItem key={size} value={`${size}`}>{size}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
                         </div>
-                        <Button variant="outline" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
-                            <ChevronRight />
-                        </Button>
-                        <Button variant="outline" onClick={() => table.setPageIndex(table.getPageCount() - 1)} disabled={!table.getCanNextPage()}>
-                            <ChevronsRight />
-                        </Button>
+                        <div className="text-muted-foreground">Page <b className="text-slate-600">{pagination.pageIndex + 1}</b> of {table.getPageCount()} (Total Records {initialData?.length || 0})</div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <div className="flex justify-center gap-2 items-center">
+                            <Button variant="outline" onClick={() => table.setPageIndex(0)} disabled={!table.getCanPreviousPage()}>
+                                <ChevronsLeft />
+                            </Button>
+                            <Button variant="outline" onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>
+                                <ChevronLeft />
+                            </Button>
+                            <div className="flex gap-1">
+                                {Array.from({ length: table.getPageCount() }, (_, i) => (
+                                    <Button key={i} variant={pagination.pageIndex === i ? "default" : "outline"} onClick={() => table.setPageIndex(i)}>
+                                        {i + 1}
+                                    </Button>
+                                ))}
+                            </div>
+                            <Button variant="outline" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
+                                <ChevronRight />
+                            </Button>
+                            <Button variant="outline" onClick={() => table.setPageIndex(table.getPageCount() - 1)} disabled={!table.getCanNextPage()}>
+                                <ChevronsRight />
+                            </Button>
+                        </div>
                     </div>
                 </div>
             </Card>
