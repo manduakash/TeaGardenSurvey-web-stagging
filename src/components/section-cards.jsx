@@ -51,8 +51,8 @@ export function SectionCards({ dashboardCount, isLoading }) {
       description: "Total Households Surveyed",
       title: dashboardCount?.total_houses,
       footerText: "Last 30 days survey records",
-      footerIcon: <IconTrendingUp className="size-4" />,
-      footerStat: "Last month (+2.8%)",
+      footerIcon: dashboardCount?.total_household_change_percentage[0] == "+" ? <IconTrendingUp className="size-4" /> : <IconTrendingDown className="size-4" />,
+      footerStat: `Last month (${dashboardCount?.total_household_change_percentage}%)`,
       footerTextColor: "text-sm text-cyan-600 dark:text-slate-400",
       cardClass: "border-2 bg-cyan-100 hover:border-cyan-400 border-slate-300",
       link: "/surveyed-households"
@@ -100,9 +100,9 @@ export function SectionCards({ dashboardCount, isLoading }) {
       cardClass: "border-2 bg-green-100 hover:border-green-400 border-slate-300",
       link: "/health-metrics/sam",
       badge: {
-        text: "+12.5%",
-        className: "text-green-500 bg-green-50",
-        icon: <IconTrendingUp />,
+        text: `${dashboardCount?.sam_change_percentage}%`,
+        className: dashboardCount?.sam_change_percentage[0] == "-" ? "text-green-500 bg-green-50" : "text-red-500 bg-red-50",
+        icon: dashboardCount?.sam_change_percentage[0] == "+" ? <IconTrendingUp /> : <IconTrendingDown />,
       },
     },
     {
@@ -126,9 +126,9 @@ export function SectionCards({ dashboardCount, isLoading }) {
       cardClass: "border-2 bg-indigo-100 hover:border-indigo-400 border-slate-300",
       link: "/health-metrics/mam",
       badge: {
-        text: "+12.5%",
-        className: "text-green-500 bg-green-50",
-        icon: <IconTrendingUp />,
+        text: `${dashboardCount?.mam_change_percentage}%`,
+        className: dashboardCount?.mam_change_percentage[0] == "-" ? "text-green-500 bg-green-50" : "text-red-500 bg-red-50",
+        icon: dashboardCount?.mam_change_percentage[0] == "+" ? <IconTrendingUp /> : <IconTrendingDown />
       },
     },
   ];
