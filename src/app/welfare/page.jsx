@@ -504,30 +504,30 @@ export default function WelfareDashboard() {
                         <div>{selectedRow?.family_head_contact_number || "N/A"}</div>
 
                         <div className="font-semibold">Caste Certificate :</div>
-                        <div>{selectedRow?.caste_certificate || 0}</div>
+                        <div>{selectedRow?.caste_certificate ? "Yes" : "No"}</div>
 
                         <div className="font-semibold">Caste Certificate No :</div>
                         <div>{selectedRow?.caste_certificate_id_no || "N/A"}</div>
 
                         <div className="font-semibold">Lakshmir Bhandar:</div>
-                        <div>{selectedRow?.lakshmir_bhandar || "N/A"}</div>
+                        <div>{selectedRow?.lakshmir_bhandar ? "Yes" : "No"}</div>
 
                         <div className="font-semibold">Lakshmir Bhandar No:</div>
                         <div>{selectedRow?.lakshmir_bhandar_card_no || "N/A"}</div>
 
                         <div className="font-semibold">Swasthya Sathi :</div>
-                        <div>{selectedRow?.swasthya_sathi || "N/A"}</div>
+                        <div>{selectedRow?.swasthya_sathi ? "Yes" : "No"}</div>
 
                         <div className="font-semibold">Swasthya Sathi Card No :</div>
                         <div>{selectedRow?.swasthya_sathi_card_no || "N/A"}</div>
 
                         <div className="font-semibold">Old Age Pension:</div>
-                        <div>{selectedRow?.old_age_pension || "N/A"}</div>
+                        <div>{selectedRow?.old_age_pension ? "Yes" : "No"}</div>
 
                         <div className="font-semibold">Old Age Pension No :</div>
                         <div>{selectedRow?.old_age_pension_id_no || "N/A"}</div>
 
-                        <div className="font-semibold">Created At:</div>
+                        <div className="font-semibold">Survey At:</div>
                         <div>
                           {selectedRow?.created_at
                             ? format(new Date(selectedRow.created_at), "dd/MM/yyyy hh:mm a")

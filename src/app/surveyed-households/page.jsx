@@ -502,7 +502,7 @@ export default function SurveyDashboard() {
                     {/* Left Side: Survey Details */}
                     <div className="overflow-y-auto px-8 py-6">
                       <div className="grid grid-cols-2 gap-2 text-lg">
-                        <div className="font-semibold">Survey ID:</div>
+                        <div className="font-semibold">Household ID:</div>
                         <div>{selectedRow?.survey_id}</div>
 
                         <div className="font-semibold">District:</div>
@@ -561,13 +561,13 @@ export default function SurveyDashboard() {
                             <div className="border rounded-lg overflow-hidden w-full h-48 flex items-center justify-center bg-gray-100">
                               {selectedRow?.family_head_img ? (
                                 <img
-                                  src={selectedRow.family_head_img || "/placeholder.svg"}
+                                  src={selectedRow.family_head_img || "/family_head.png"}
                                   alt="Family Head"
                                   className="object-cover w-full h-full"
                                 />
                               ) : (
                                 <img
-                                  src="/placeholder.svg?height=200&width=200"
+                                  src="/family_head"
                                   alt="No Family Head Image"
                                   className="object-cover w-32 h-32 opacity-50"
                                 />
@@ -581,13 +581,13 @@ export default function SurveyDashboard() {
                             <div className="border rounded-lg overflow-hidden w-full h-48 flex items-center justify-center bg-gray-100">
                               {selectedRow?.household_img ? (
                                 <img
-                                  src={selectedRow.household_img || "/placeholder.svg"}
+                                  src={selectedRow.household_img || "/house.jpg"}
                                   alt="Household"
                                   className="object-cover w-full h-full"
                                 />
                               ) : (
                                 <img
-                                  src="/placeholder.svg?height=200&width=200"
+                                  src="/house.jpg"
                                   alt="No Household Image"
                                   className="object-cover w-32 h-32 opacity-50"
                                 />
@@ -601,13 +601,13 @@ export default function SurveyDashboard() {
                             <div className="border rounded-lg overflow-hidden w-full h-48 flex items-center justify-center bg-gray-100">
                               {selectedRow?.family_head_signature_img ? (
                                 <img
-                                  src={selectedRow.family_head_signature_img || "/placeholder.svg"}
+                                  src={selectedRow.family_head_signature_img || "/signature.jpg"}
                                   alt="Signature"
                                   className="object-cover w-full h-full"
                                 />
                               ) : (
                                 <img
-                                  src="/placeholder.svg?height=200&width=200"
+                                  src="/signature.jpg"
                                   alt="No Signature Image"
                                   className="object-cover w-32 h-32 opacity-50"
                                 />

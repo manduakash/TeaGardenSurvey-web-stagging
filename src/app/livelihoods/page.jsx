@@ -504,13 +504,13 @@ export default function WelfareDashboard() {
                         <div>{selectedRow?.family_head_contact_number || "N/A"}</div>
 
                         <div className="font-semibold">SHG Member :</div>
-                        <div>{selectedRow?.shg_member || 0}</div>
+                        <div>{selectedRow?.shg_member ? "Yes" : "No"}</div>
 
                         <div className="font-semibold">Wants To Join SHG :</div>
-                        <div>{selectedRow?.wants_to_join_shg || "N/A"}</div>
+                        <div>{selectedRow?.wants_to_join_shg ? "Yes" : "No"}</div>
 
                         <div className="font-semibold">Training required:</div>
-                        <div>{selectedRow?.training_required || "N/A"}</div>
+                        <div>{selectedRow?.training_required ? "Yes" : "No"}</div>
 
                         <div className="font-semibold">Training Name:</div>
                         <div>{selectedRow?.training_name || "N/A"}</div>
