@@ -229,6 +229,7 @@ export default function SurveyDashboard() {
             district_id: districtId ? Number.parseInt(districtId) : 0,
             subdivision_id: subdivisionId ? Number.parseInt(subdivisionId) : 0,
             block_id: blockId ? Number.parseInt(blockId) : 0,
+            gp_id: gpId ? Number.parseInt(gpId) : 0,
             village_id: 0, // Not used in the filter UI
             start_date: formattedStartDate,
             end_date: formattedEndDate,
