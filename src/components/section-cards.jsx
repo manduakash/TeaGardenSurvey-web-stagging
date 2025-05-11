@@ -51,7 +51,7 @@ export function SectionCards({ dashboardCount, isLoading }) {
       description: "Total Households Surveyed",
       title: dashboardCount?.total_houses,
       footerText: "Last 30 days survey records",
-      footerIcon: dashboardCount?.total_household_change_percentage[0] == "+" ? <IconTrendingUp className="size-4" /> : <IconTrendingDown className="size-4" />,
+      footerIcon: (dashboardCount?.total_household_change_percentage && dashboardCount?.total_household_change_percentage[0] == "+") ? <IconTrendingUp className="size-4" /> : <IconTrendingDown className="size-4" />,
       footerStat: `Last month (${dashboardCount?.total_household_change_percentage}%)`,
       footerTextColor: "text-sm text-cyan-600 dark:text-slate-400",
       cardClass: "border-2 bg-cyan-100 hover:border-cyan-400 border-slate-300",
@@ -101,8 +101,8 @@ export function SectionCards({ dashboardCount, isLoading }) {
       link: "/health-metrics/sam",
       badge: {
         text: `${dashboardCount?.sam_change_percentage}%`,
-        className: dashboardCount?.sam_change_percentage[0] == "-" ? "text-green-500 bg-green-50" : "text-red-500 bg-red-50",
-        icon: dashboardCount?.sam_change_percentage[0] == "+" ? <IconTrendingUp /> : <IconTrendingDown />,
+        className: (dashboardCount?.sam_change_percentage && dashboardCount?.sam_change_percentage[0] == "-") ? "text-green-500 bg-green-50" : "text-red-500 bg-red-50",
+        icon: (dashboardCount?.sam_change_percentage && dashboardCount?.sam_change_percentage[0] == "+") ? <IconTrendingUp /> : <IconTrendingDown />,
       },
     },
     {
@@ -127,8 +127,8 @@ export function SectionCards({ dashboardCount, isLoading }) {
       link: "/health-metrics/mam",
       badge: {
         text: `${dashboardCount?.mam_change_percentage}%`,
-        className: dashboardCount?.mam_change_percentage[0] == "-" ? "text-green-500 bg-green-50" : "text-red-500 bg-red-50",
-        icon: dashboardCount?.mam_change_percentage[0] == "+" ? <IconTrendingUp /> : <IconTrendingDown />
+        className: (dashboardCount?.mam_change_percentage && dashboardCount?.mam_change_percentage[0] == "-") ? "text-green-500 bg-green-50" : "text-red-500 bg-red-50",
+        icon: (dashboardCount?.mam_change_percentage && dashboardCount?.mam_change_percentage[0] == "+") ? <IconTrendingUp /> : <IconTrendingDown />
       },
     },
   ];
