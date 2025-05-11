@@ -12,6 +12,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { DatePicker } from "@/components/reusables/date-picker"
 import { getUserData } from "@/utils/cookies"
+import house from "../../assets/house.jpg"
+import signature from "../../assets/signature.jpg"
 
 
 const BASE_URL = process.env.NEXT_PUBLIC_SERVICE_URL;
@@ -579,19 +581,15 @@ export default function SurveyDashboard() {
                           <div className="flex flex-col items-center">
                             <div className="font-medium mb-2">Household</div>
                             <div className="border rounded-lg overflow-hidden w-full h-48 flex items-center justify-center bg-gray-100">
-                              {selectedRow?.household_img ? (
-                                <img
-                                  src={selectedRow.household_img || "/house.jpg"}
-                                  alt="Household"
-                                  className="object-cover w-full h-full"
-                                />
-                              ) : (
-                                <img
-                                  src="/house.jpg"
-                                  alt="No Household Image"
-                                  className="object-cover w-32 h-32 opacity-50"
-                                />
-                              )}
+                              <img
+                                src={selectedRow?.household_img || house}
+                                alt="Household"
+                                className={selectedRow?.household_img ? "object-cover w-full h-full" : "object-cover w-32 h-32 opacity-50"}
+                                onError={(e) => {
+                                  e.target.onerror = null; // Prevent infinite loop
+                                  e.target.src = house; // Fallback to default image
+                                }}
+                              />
                             </div>
                           </div>
 
@@ -599,19 +597,15 @@ export default function SurveyDashboard() {
                           <div className="flex flex-col items-center">
                             <div className="font-medium mb-2">Signature</div>
                             <div className="border rounded-lg overflow-hidden w-full h-48 flex items-center justify-center bg-gray-100">
-                              {selectedRow?.family_head_signature_img ? (
-                                <img
-                                  src={selectedRow.family_head_signature_img || "/signature.jpg"}
-                                  alt="Signature"
-                                  className="object-cover w-full h-full"
-                                />
-                              ) : (
-                                <img
-                                  src="/signature.jpg"
-                                  alt="No Signature Image"
-                                  className="object-cover w-32 h-32 opacity-50"
-                                />
-                              )}
+                              <img
+                                src={selectedRow?.family_head_signature_img || signature}
+                                alt="Signature"
+                                className="object-cover w-full h-full"
+                                onError={(e) => {
+                                  e.target.onerror = null; // Prevent infinite loop
+                                  e.target.src = house; // Fallback to default image
+                                }}
+                              />
                             </div>
                           </div>
                         </div>
