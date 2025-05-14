@@ -310,7 +310,7 @@ export default function WelfareDashboard() {
   const columns = [
     {
       accessorKey: "survey_id",
-      header: "Survey ID",
+      header: "Household ID",
     },
     {
       accessorKey: "state",

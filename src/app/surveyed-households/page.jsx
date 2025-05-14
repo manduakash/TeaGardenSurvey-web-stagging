@@ -321,7 +321,7 @@ export default function SurveyDashboard() {
   const columns = [
     {
       accessorKey: "survey_id",
-      header: "Survey ID",
+      header: "Household ID",
     },
     {
       accessorKey: "sub_division",

@@ -71,7 +71,7 @@ export function HouseHoldsDataTable({ data: initialData }) {
     () => [
       {
         accessorKey: "survey_id",
-        header: "Survey ID",
+        header: "Household ID",
       },
       {
         accessorKey: "district",
@@ -141,7 +141,7 @@ export function HouseHoldsDataTable({ data: initialData }) {
     <div className="overflow-hidden mx-10">
       <div className="p-4 flex justify-between items-center">
         <Input
-          placeholder="Search by survey ID, state, district, etc."
+          placeholder="Search by Household ID, state, district, etc."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="w-1/3"
@@ -226,7 +226,7 @@ export function HouseHoldsDataTable({ data: initialData }) {
             {/* Left Side: Survey Details (Scrollable) */}
             <div className="overflow-y-auto px-8 py-6">
               <div className="grid grid-cols-2 gap-2 text-lg">
-                <div className="font-semibold">Survey ID:</div>
+                <div className="font-semibold">Household ID:</div>
                 <div>{selectedRow?.survey_id}</div>
 
                 <div className="font-semibold">State:</div>

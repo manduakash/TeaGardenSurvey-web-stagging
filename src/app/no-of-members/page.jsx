@@ -313,7 +313,7 @@ export default function SurveyDashboard() {
   const columns = [
     {
       accessorKey: "survey_id",
-      header: "Survey ID",
+      header: "Household ID",
     },
     {
       accessorKey: "name",
@@ -499,7 +499,7 @@ export default function SurveyDashboard() {
                     {/* Left Side: Survey Details */}
                     <div className="overflow-y-auto px-8 py-6">
                       <div className="grid grid-cols-2 gap-2 text-lg">
-                        <div className="font-semibold">Survey ID:</div>
+                        <div className="font-semibold">Household ID:</div>
                         <div>{selectedRow?.survey_id}</div>
 
                         <div className="font-semibold">Household ID:</div>
