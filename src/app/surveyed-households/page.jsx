@@ -493,7 +493,7 @@ export default function SurveyDashboard() {
 
               {/* Detail Dialog */}
               <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogContent className="w-[90%] min-w-[90%] max-w-[90%] h-auto p-0">
+                <DialogContent className="w-[90%] min-w-[90%] max-w-[90%] h-[90%] min-h-[90%] max-h-[90%] p-0">
                   <DialogHeader className="flex items-center bg-cyan-600 text-white p-4 rounded-t-lg">
                     <DialogTitle className="text-4xl font-semibold">Survey Details</DialogTitle>
                   </DialogHeader>
@@ -562,7 +562,7 @@ export default function SurveyDashboard() {
                             <div className="border rounded-lg overflow-hidden w-full h-48 flex items-center justify-center bg-gray-100">
                               {selectedRow?.family_head_img ? (
                                 <img
-                                  src={selectedRow.family_head_img || "/placeholder.svg"}
+                                  src={selectedRow?.family_head_img || "/placeholder.svg"}
                                   alt="Family Head"
                                   className="object-cover w-full h-full"
                                 />
@@ -582,7 +582,7 @@ export default function SurveyDashboard() {
                             <div className="border rounded-lg overflow-hidden w-full h-48 flex items-center justify-center bg-gray-100">
                               {selectedRow?.household_img ? (
                                 <img
-                                  src={selectedRow.household_img || "/placeholder.svg"}
+                                  src={selectedRow?.household_img || "/placeholder.svg"}
                                   alt="Household"
                                   className="object-cover w-full h-full"
                                 />
