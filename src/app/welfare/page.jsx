@@ -527,7 +527,7 @@ export default function WelfareDashboard() {
                         <div className="font-semibold">Old Age Pension No. :</div>
                         <div>{selectedRow?.old_age_pension_id_no || "N/A"}</div>
 
-                        <div className="font-semibold">Survey Date:</div>
+                        <div className="font-semibold">Survey At:</div>
                         <div>
                           {selectedRow?.created_at
                             ? format(new Date(selectedRow.created_at), "dd/MM/yyyy hh:mm a")
