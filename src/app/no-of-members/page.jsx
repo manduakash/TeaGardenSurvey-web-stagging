@@ -54,7 +54,7 @@ export default function SurveyDashboard() {
   const [surveyData, setSurveyData] = useState([])
 
   // Loading states
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
   const [customMarkerIcon, setCustomMarkerIcon] = useState(null)
 
   useEffect(() => {
@@ -489,21 +489,18 @@ export default function SurveyDashboard() {
 
               {/* Detail Dialog */}
               <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogContent className="w-[80%] min-w-[80%] h-auto p-0">
+                <DialogContent className="w-[90%] min-w-[90%] h-[90%] p-0">
                   <DialogHeader className="flex items-center bg-cyan-600 text-white p-4 rounded-t-lg">
                     <DialogTitle className="text-4xl font-semibold">Survey Details</DialogTitle>
                   </DialogHeader>
 
                   {/* Main Content with Two Columns */}
-                  <div className="grid grid-cols-1 xl:grid-cols-2 w-full">
+                  <div className="grid grid-cols-1 xl:grid-cols-2 w-full h-full">
                     {/* Left Side: Survey Details */}
                     <div className="overflow-y-auto px-8 py-6">
-                      <div className="grid grid-cols-2 gap-2 text-lg">
+                      <div className="grid grid-cols-2 text-lg">
                         <div className="font-semibold">Household ID:</div>
                         <div>{selectedRow?.survey_id}</div>
-
-                        <div className="font-semibold">Household ID:</div>
-                        <div>{selectedRow?.household_id}</div>
 
                         <div className="font-semibold">District:</div>
                         <div>{selectedRow?.district_name}</div>
@@ -536,20 +533,10 @@ export default function SurveyDashboard() {
                         <div>{selectedRow?.age}</div>
 
                         <div className="font-semibold">Height:</div>
-                        <div>{selectedRow?.height} ft</div>
+                        <div>{selectedRow?.height} cm</div>
 
                         <div className="font-semibold">Weight:</div>
                         <div>{selectedRow?.weight} kg</div>
-
-                        {selectedRow?.latitude && selectedRow?.longitude && (
-                          <>
-                            <div className="font-semibold">Latitude:</div>
-                            <div>{selectedRow?.latitude}</div>
-
-                            <div className="font-semibold">Longitude:</div>
-                            <div>{selectedRow?.longitude}</div>
-                          </>
-                        )}
                       </div>
                     </div>
 

@@ -55,7 +55,7 @@ export default function WelfareDashboard() {
   const [welfareData, setWelfareData] = useState([])
 
   // Loading states
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
   const [customMarkerIcon, setCustomMarkerIcon] = useState(null)
 
   useEffect(() => {

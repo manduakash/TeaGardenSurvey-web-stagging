@@ -57,7 +57,7 @@ export default function Page() {
   const [blocks, setBlocks] = useState([])
   const [gps, setGps] = useState([])
   const [surveyData, setSurveyData] = useState([])
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
   const [customMarkerIcon, setCustomMarkerIcon] = useState(null)
   const [healthCount, setHealthCount] = useState(0)
   const [enrollmentCount, setEnrollmentCount] = useState(0)

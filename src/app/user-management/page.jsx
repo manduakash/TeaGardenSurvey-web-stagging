@@ -29,7 +29,7 @@ export default function Page() {
   const [block, setBlock] = useState("")
   const [gps, setGps] = useState([])
   const [gramPanchayat, setGramPanchayat] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
   const [isSubdivisionLoading, setIsSubdivisionLoading] = useState(false)
   const [isBlockLoading, setIsBlockLoading] = useState(false)
   const [isGramPanchayatLoading, setIsGramPanchayatLoading] = useState(false)

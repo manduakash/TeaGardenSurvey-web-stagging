@@ -57,7 +57,7 @@ export default function SurveyDashboard() {
   const [surveyData, setSurveyData] = useState([])
 
   // Loading states
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
   const [customMarkerIcon, setCustomMarkerIcon] = useState(null)
 
   // Fetch districts on initial load

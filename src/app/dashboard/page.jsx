@@ -16,7 +16,7 @@ import { getDashboardCount } from "./api"
 
 export default function Page() {
   const [dashboardCount, setDashboardCount] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
   useEffect(() => {
     const fetchDashboardCount = async () => {
       setIsLoading(true)
