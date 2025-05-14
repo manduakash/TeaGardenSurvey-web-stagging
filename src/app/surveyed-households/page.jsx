@@ -14,6 +14,7 @@ import { DatePicker } from "@/components/reusables/date-picker"
 import { getUserData } from "@/utils/cookies"
 import house from "../../assets/house.jpg"
 import signature from "../../assets/signature.jpg"
+import { format } from "date-fns"
 
 
 const BASE_URL = process.env.NEXT_PUBLIC_SERVICE_URL;
@@ -495,151 +496,162 @@ export default function SurveyDashboard() {
 
               {/* Detail Dialog */}
               <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogContent className="w-[90%] min-w-[90%] max-w-[90%] h-[90%] min-h-[90%] max-h-[90%] p-0">
+                <DialogContent className="w-[90%] min-w-[90%] h-[90%] p-0">
                   <DialogHeader className="flex items-center bg-cyan-600 text-white p-4 rounded-t-lg">
-                    <DialogTitle className="text-4xl font-semibold">Survey Details</DialogTitle>
+                    <DialogTitle className="text-4xl font-semibold">Household Survey Details</DialogTitle>
                   </DialogHeader>
 
                   {/* Main Content with Two Columns */}
-                  <div className="grid grid-cols-1 xl:grid-cols-2 w-full">
-                    {/* Left Side: Survey Details */}
-                    <div className="overflow-y-auto px-8 py-6">
-                      <div className="grid grid-cols-2 gap-2 text-lg">
-                        <div className="font-semibold">Household ID:</div>
-                        <div>{selectedRow?.survey_id}</div>
+                  <div className="h-full w-full overflow-scroll">
+                    <div className="grid grid-cols-1 xl:grid-cols-2 w-full h-full">
+                      {/* Left Side: Survey Details */}
+                      <div className="overflow-y-auto px-8 py-6">
+                        <div className="grid grid-cols-2 gap-1 text-lg">
+                          <div className="font-semibold">Household ID:</div>
+                          <div>{selectedRow?.survey_id}</div>
 
-                        <div className="font-semibold">District:</div>
-                        <div>{selectedRow?.district}</div>
+                          <div className="font-semibold">District:</div>
+                          <div>{selectedRow?.district}</div>
 
-                        <div className="font-semibold">Sub Division:</div>
-                        <div>{selectedRow?.sub_division}</div>
+                          <div className="font-semibold">Sub Division:</div>
+                          <div>{selectedRow?.sub_division}</div>
 
-                        <div className="font-semibold">Block:</div>
-                        <div>{selectedRow?.block}</div>
+                          <div className="font-semibold">Block:</div>
+                          <div>{selectedRow?.block}</div>
 
-                        <div className="font-semibold">Gram Panchayat:</div>
-                        <div>{selectedRow?.gp || "N/A"}</div>
+                          <div className="font-semibold">Gram Panchayat:</div>
+                          <div>{selectedRow?.gp || "N/A"}</div>
 
-                        <div className="font-semibold">Village:</div>
-                        <div>{selectedRow?.village || "N/A"}</div>
+                          <div className="font-semibold">Village:</div>
+                          <div>{selectedRow?.village || "N/A"}</div>
 
-                        <div className="font-semibold">House Number:</div>
-                        <div>{selectedRow?.house_number}</div>
+                          <div className="font-semibold">House Number:</div>
+                          <div>{selectedRow?.house_number}</div>
 
-                        <div className="font-semibold">Family Income:</div>
-                        <div>₹{Number(selectedRow?.family_income).toLocaleString()}</div>
+                          <div className="font-semibold">Family Income:</div>
+                          <div>₹{Number(selectedRow?.family_income).toLocaleString()}</div>
 
-                        {selectedRow?.family_head_name && (
-                          <>
-                            <div className="font-semibold">Family Head Name:</div>
-                            <div>{selectedRow?.family_head_name}</div>
-                          </>
-                        )}
+                          {selectedRow?.family_head_name && (
+                            <>
+                              <div className="font-semibold">Family Head Name:</div>
+                              <div>{selectedRow?.family_head_name}</div>
+                            </>
+                          )}
 
-                        {selectedRow?.family_head_contact_number && (
-                          <>
-                            <div className="font-semibold">Contact Number:</div>
-                            <div>{selectedRow?.family_head_contact_number}</div>
-                          </>
-                        )}
+                          {selectedRow?.family_head_contact_number && (
+                            <>
+                              <div className="font-semibold">Contact Number:</div>
+                              <div>{selectedRow?.family_head_contact_number}</div>
+                            </>
+                          )}
 
-                        {selectedRow?.latitude && selectedRow?.longitude && (
-                          <>
-                            <div className="font-semibold">Latitude:</div>
-                            <div>{selectedRow?.latitude}</div>
+                          {selectedRow?.latitude && selectedRow?.longitude && (
+                            <>
+                              <div className="font-semibold">Latitude:</div>
+                              <div>{selectedRow?.latitude}</div>
 
-                            <div className="font-semibold">Longitude:</div>
-                            <div>{selectedRow?.longitude}</div>
-                          </>
-                        )}
-                      </div>
+                              <div className="font-semibold">Longitude:</div>
+                              <div>{selectedRow?.longitude}</div>
+                            </>
+                          )}
 
-                      {/* Images Section */}
-                      <div className="mt-6">
-                        <h3 className="text-xl font-extrabold mb-4">Images :</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                          {/* Family Head Image */}
-                          <div className="flex flex-col items-center">
-                            <div className="font-medium mb-2">Family Head</div>
-                            <div className="border rounded-lg overflow-hidden w-full h-48 flex items-center justify-center bg-gray-100">
-                              {selectedRow?.family_head_img ? (
-                                <img
-                                  src={selectedRow.family_head_img || "/family_head.png"}
-                                  alt="Family Head"
-                                  className="object-cover w-full h-full"
-                                />
-                              ) : (
-                                <img
-                                  src="/family_head"
-                                  alt="No Family Head Image"
-                                  className="object-cover w-32 h-32 opacity-50"
-                                />
-                              )}
-                            </div>
+                          <div className="font-semibold">Survey Date:</div>
+                          <div>
+                            {selectedRow?.created_at
+                              ? format(new Date(selectedRow.created_at), "dd/MM/yyyy hh:mm a")
+                              : "N/A"}
                           </div>
+                        </div>
 
-                          {/* Household Image */}
-                          <div className="flex flex-col items-center">
-                            <div className="font-medium mb-2">Household</div>
-                            <div className="border rounded-lg overflow-hidden w-full h-48 flex items-center justify-center bg-gray-100">
-                              <img
-                                src={selectedRow?.household_img || house}
-                                alt="Household"
-                                className={selectedRow?.household_img ? "object-cover w-full h-full" : "object-cover w-32 h-32 opacity-50"}
-                                onError={(e) => {
-                                  e.target.onerror = null; // Prevent infinite loop
-                                  e.target.src = house; // Fallback to default image
-                                }}
-                              />
+                        {/* Images Section */}
+                        <div className="mt-6">
+                          <h3 className="text-xl font-extrabold mb-4">Images :</h3>
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            {/* Family Head Image */}
+                            <div className="flex flex-col items-center">
+                              <div className="font-medium mb-2">Family Head</div>
+                              <div className="border rounded-lg overflow-hidden w-full h-48 flex items-center justify-center bg-gray-100">
+                                {selectedRow?.family_head_img ? (
+                                  <a className="p-0 h-full w-full cursor-zoom-in" href={selectedRow?.family_head_img || "#"} target="_blank">
+                                    <img
+                                      src={selectedRow?.family_head_img || "/family_head.png"}
+                                      alt="Family Head"
+                                      className="object-cover w-full h-full"
+                                    />
+                                  </a>
+                                ) : (
+                                  <img
+                                    src="/family_head"
+                                    alt="No Family Head Image"
+                                    className="object-cover w-32 h-32 opacity-50"
+                                  />
+                                )}
+                              </div>
                             </div>
-                          </div>
 
-                          {/* Signature Image */}
-                          <div className="flex flex-col items-center">
-                            <div className="font-medium mb-2">Signature</div>
-                            <div className="border rounded-lg overflow-hidden w-full h-48 flex items-center justify-center bg-gray-100">
-                              <img
-                                src={selectedRow?.family_head_signature_img || signature}
-                                alt="Signature"
-                                className="object-cover w-full h-full"
-                                onError={(e) => {
-                                  e.target.onerror = null; // Prevent infinite loop
-                                  e.target.src = house; // Fallback to default image
-                                }}
-                              />
+                            {/* Household Image */}
+                            <div className="flex flex-col items-center">
+                              <div className="font-medium mb-2">Household</div>
+                              <div className="border rounded-lg overflow-hidden w-full h-48 flex items-center justify-center bg-gray-100">
+                                <a className="p-0 h-full w-full cursor-zoom-in" href={selectedRow?.household_img || "#"} target="_blank">
+                                  <img
+                                    src={selectedRow?.household_img || house}
+                                    alt="Household"
+                                    className={selectedRow?.household_img ? "object-cover w-full h-full" : "object-cover w-32 h-32 opacity-50"}
+                                    onError={(e) => {
+                                      e.target.onerror = null; // Prevent infinite loop
+                                      e.target.src = house; // Fallback to default image
+                                    }}
+                                  />
+                                </a>
+                              </div>
+                            </div>
+
+                            {/* Signature Image */}
+                            <div className="flex flex-col items-center">
+                              <div className="font-medium mb-2">Signature</div>
+                              <div className="border rounded-lg overflow-hidden w-full h-48 flex items-center justify-center bg-gray-100">
+                                <a className="p-0 h-full w-full cursor-zoom-in" href={selectedRow?.family_head_signature_img || "#"} target="_blank">
+                                  <img
+                                    src={selectedRow?.family_head_signature_img || signature}
+                                    alt="Signature"
+                                    className="object-cover w-full h-full"
+                                  />
+                                </a>
+                              </div>
                             </div>
                           </div>
                         </div>
                       </div>
-                    </div>
 
-                    {/* Right Side: Map */}
-                    {selectedRow?.latitude && selectedRow?.longitude && customMarkerIcon && (
-                      <div className="flex items-center justify-center p-6">
-                        <MapContainer
-                          center={[Number(selectedRow?.latitude), Number(selectedRow?.longitude)]}
-                          zoom={13}
-                          style={{ height: "90%", width: "100%", borderRadius: "8px" }}
-                        >
-                          <TileLayer
-                            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                          />
-                          <Marker
-                            position={[Number(selectedRow?.latitude), Number(selectedRow?.longitude)]}
-                            icon={customMarkerIcon}
+                      {/* Right Side: Map */}
+                      {selectedRow?.latitude && selectedRow?.longitude && customMarkerIcon && (
+                        <div className="flex items-center justify-center p-6">
+                          <MapContainer
+                            center={[Number(selectedRow?.latitude), Number(selectedRow?.longitude)]}
+                            zoom={13}
+                            style={{ height: "90%", width: "100%", borderRadius: "8px" }}
                           >
-                            <Popup>
-                              <strong>Household Location</strong>
-                              <br />
-                              Latitude: {selectedRow?.latitude}
-                              <br />
-                              Longitude: {selectedRow?.longitude}
-                            </Popup>
-                          </Marker>
-                        </MapContainer>
-                      </div>
-                    )}
+                            <TileLayer
+                              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                            />
+                            <Marker
+                              position={[Number(selectedRow?.latitude), Number(selectedRow?.longitude)]}
+                              icon={customMarkerIcon}
+                            >
+                              <Popup>
+                                <strong>Household Location</strong>
+                                <br />
+                                Latitude: {selectedRow?.latitude}
+                                <br />
+                                Longitude: {selectedRow?.longitude}
+                              </Popup>
+                            </Marker>
+                          </MapContainer>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </DialogContent>
               </Dialog>

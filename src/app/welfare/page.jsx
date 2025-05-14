@@ -488,14 +488,14 @@ export default function WelfareDashboard() {
 
               {/* Detail Dialog */}
               <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogContent className="w-[80%] min-w-[80%] h-auto p-0">
+                <DialogContent className="w-[50%] min-w-[50%] h-auto p-0">
                   <DialogHeader className="flex items-center bg-cyan-600 text-white p-4 rounded-t-lg">
-                    <DialogTitle className="text-4xl font-semibold">Survey Details</DialogTitle>
+                    <DialogTitle className="text-4xl font-semibold">Welfare Survey Details</DialogTitle>
                   </DialogHeader>
 
-                  <div className="grid grid-cols-1 xl:grid-cols-2 w-full">
+                   <div className="grid grid-cols-1 xl:grid-cols-2 w-[100%] min-w-[100%]">
                     {/* Left Side: Survey Details */}
-                    <div className="overflow-y-auto px-8 py-6">
+                    <div className="overflow-y-auto px-8 py-6 min-w-[50vw] w-[50vw]">
                       <div className="grid grid-cols-2 gap-2 text-lg">
                         <div className="font-semibold">Family Head Name :</div>
                         <div>{selectedRow?.family_head_name || "N/A"}</div>
@@ -527,7 +527,7 @@ export default function WelfareDashboard() {
                         <div className="font-semibold">Old Age Pension No. :</div>
                         <div>{selectedRow?.old_age_pension_id_no || "N/A"}</div>
 
-                        <div className="font-semibold">Survey At:</div>
+                        <div className="font-semibold">Survey Date:</div>
                         <div>
                           {selectedRow?.created_at
                             ? format(new Date(selectedRow.created_at), "dd/MM/yyyy hh:mm a")

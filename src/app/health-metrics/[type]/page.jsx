@@ -55,7 +55,7 @@ export default function Page() {
 
 
   useEffect(() => {
-   
+
   }, [type_of_search])
 
   // API calls
@@ -148,7 +148,7 @@ export default function Page() {
         } else {
           fetchHealthSurveyData();
         }
-  
+
       }
     }
     fixUsersJurisdiction();
@@ -616,9 +616,9 @@ export default function Page() {
               <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogContent className="p-0">
                   <DialogHeader className="flex flex-col items-center bg-cyan-600 text-white p-4 rounded-t-lg">
-                    <DialogTitle>Health Info.</DialogTitle>
+                    <DialogTitle>Health Survey Details</DialogTitle>
                   </DialogHeader>
-                  <div className="grid grid-cols-2 gap-2 p-6">
+                  <div className="grid grid-cols-2 p-6">
                     <div className="font-medium">Household No:</div>
                     <div>{selectedRow?.house_number}</div>
 
@@ -660,6 +660,13 @@ export default function Page() {
 
                     <div className="font-medium">Remarks:</div>
                     <div>{selectedRow?.remarks}</div>
+
+                    <div className="font-medium">Survey Date:</div>
+                    <div>
+                      {selectedRow?.created_at
+                        ? format(new Date(selectedRow?.created_at), "dd/MM/yyyy hh:mm a")
+                        : "N/A"}
+                    </div>
                   </div>
                 </DialogContent>
               </Dialog>
