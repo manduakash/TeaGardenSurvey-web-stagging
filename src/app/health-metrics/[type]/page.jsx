@@ -656,7 +656,7 @@ export default function Page() {
                     <div>{selectedRow?.blood_pressure}</div>
 
                     <div className="font-medium">Sugar Level:</div>
-                    <div>{selectedRow?.blood_sugar}</div>
+                    <div>{selectedRow?.blood_sugar} mg/dL</div>
 
                     <div className="font-medium">Remarks:</div>
                     <div>{selectedRow?.remarks}</div>
