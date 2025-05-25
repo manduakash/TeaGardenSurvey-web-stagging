@@ -53,6 +53,47 @@ export default function Page() {
   const [gender, setGender] = useState("ALL")
   const [ageGroup, setAgeGroup] = useState("ALL")
 
+  const BASE_URL = process.env.NEXT_PUBLIC_SERVICE_URL;
+  const [tgId, setTgId] = useState("")
+  const [tgs, setTgs] = useState([])
+
+  const fetchTgs = async (gpId) => {
+    try {
+      const response = await fetch(`${BASE_URL}dropdownList/getTeagardensByGP`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          gp_id: Number.parseInt(gpId),
+        }),
+      })
+
+      const data = await response.json()
+      console.log("tgs", data);
+
+      if (data.success) {
+        setTgs(data.data)
+      }
+    } catch (error) {
+      console.error("Error fetching GPs:", error)
+    }
+  }
+
+  const handleTgChange = (value) => {
+    setTgId(value)
+  }
+
+  const handleGpChange = (value) => {
+    setGpId(value)
+    setTgId("")
+
+    if (value) {
+      fetchTgs(value)
+    } else {
+      setTgs([])
+    }
+  }
 
   useEffect(() => {
 
@@ -62,7 +103,7 @@ export default function Page() {
   const fetchDistricts = async () => {
     try {
       const response = await fetch(
-        "https://tea-garden-survey-api-stagging.vercel.app/api/dropdownList/getDistrictsByState",
+        BASE_URL+"dropdownList/getDistrictsByState",
         {
           method: "POST",
           headers: {
@@ -88,7 +129,7 @@ export default function Page() {
   const fetchSubdivisions = async (distId) => {
     try {
       const response = await fetch(
-        "https://tea-garden-survey-api-stagging.vercel.app/api/dropdownList/getSubDivisionsByDistrict",
+        BASE_URL+"dropdownList/getSubDivisionsByDistrict",
         {
           method: "POST",
           headers: {
@@ -118,25 +159,17 @@ export default function Page() {
       const userBlockId = getUserData().BlockID ?? 0;
       const userGPId = getUserData().GPID ?? 0
 
-      if (userDistrictId) {
-        await fetchDistricts();
-        setDistrictId(userDistrictId.toString());
-      }
+      await fetchDistricts();
+      setDistrictId(userDistrictId.toString());
 
-      if (userSubDivisionId) {
-        await fetchSubdivisions(userDistrictId);
-        setSubdivisionId(userSubDivisionId.toString())
-      }
+      await fetchSubdivisions(userDistrictId);
+      setSubdivisionId(userSubDivisionId.toString())
 
-      if (userBlockId) {
-        await fetchBlocks(userSubDivisionId);
-        setBlockId(userBlockId.toString())
-      }
+      await fetchBlocks(userSubDivisionId);
+      setBlockId(userBlockId.toString())
 
-      if (userGPId) {
-        await fetchGps(userBlockId);
-        setGpId(userGPId.toString())
-      }
+      await fetchGps(userBlockId);
+      setGpId(userGPId.toString())
 
       if (type_of_search) {
         if (type_of_search == "sam") {
@@ -157,7 +190,7 @@ export default function Page() {
   const fetchBlocks = async (subDivId) => {
     try {
       const response = await fetch(
-        "https://tea-garden-survey-api-stagging.vercel.app/api/dropdownList/getBlocksBySubDivision",
+        BASE_URL+"dropdownList/getBlocksBySubDivision",
         {
           method: "POST",
           headers: {
@@ -180,7 +213,7 @@ export default function Page() {
 
   const fetchGps = async (blkId) => {
     try {
-      const response = await fetch("https://tea-garden-survey-api-stagging.vercel.app/api/dropdownList/getGPsByBlock", {
+      const response = await fetch(BASE_URL+"dropdownList/getGPsByBlock", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -215,7 +248,7 @@ export default function Page() {
       const formattedEndDate = endDate ? endDate : today;
 
       const response = await fetch(
-        "https://tea-garden-survey-api-stagging.vercel.app/api/dropdownList/getHealthDetailsWithFilters",
+        BASE_URL+"dropdownList/getHealthDetailsWithFilters",
         {
           method: "POST",
           headers: {
@@ -226,7 +259,7 @@ export default function Page() {
             district_id: districtId ? Number.parseInt(districtId) : 0,
             subdivision_id: subdivisionId ? Number.parseInt(subdivisionId) : 0,
             block_id: blockId ? Number.parseInt(blockId) : 0,
-            village_id: 0,
+            village_id: tgId ? Number.parseInt(tgId) : 0,
             start_date: formattedStartDate,
             end_date: formattedEndDate,
             nutrition_status: type == "sam" ? "SAM" : type == "mam" ? "MAM" : nutritionStatus,
@@ -288,10 +321,6 @@ export default function Page() {
     } else {
       setGps([])
     }
-  }
-
-  const handleGpChange = (value) => {
-    setGpId(value)
   }
 
   const handleSearch = () => {
@@ -502,6 +531,25 @@ export default function Page() {
                     </Select>
                   </div>
 
+                  
+                  {/* TG Dropdown */}
+                  <div className="">
+                    <label className="block text-sm font-medium text-gray-700">Select Tea-Garden</label>
+                    <Select value={tgId} onValueChange={handleTgChange} disabled={!gpId}>
+                      <SelectTrigger className="w-full hover:bg-slate-100">
+                        <SelectValue placeholder="Select TG" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="0">All Teagardens</SelectItem>
+                        {tgs.map((tg) => (
+                          <SelectItem key={tg.id} value={tg.id.toString()}>
+                            {tg.teagarden_name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
                   {/* Gender */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700">Select Gender</label>
@@ -625,7 +673,7 @@ export default function Page() {
                     <div className="font-medium">Block:</div>
                     <div>{selectedRow?.block_name}</div>
 
-                    <div className="font-medium">Village:</div>
+                    <div className="font-medium">Teagarden:</div>
                     <div>{selectedRow?.village_name}</div>
 
                     <div className="font-medium">Name:</div>

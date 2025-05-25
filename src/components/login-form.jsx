@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, CheckCircle, XCircle } from "lucide-react";
+import { Loader2, CheckCircle, XCircle, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -15,15 +15,11 @@ export function LoginForm({ className, ...props }) {
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_SERVICE_URL;
-  // console.log(API_BASE_URL, "API_BASE_URL");
-  // const user_details = getUserData();
-  // console.log("Cookies", user_details);
 
-
-  //logic is that after login all the details will be save in cookies and with encrypted format and redirect to the Dashboard page
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -116,18 +112,35 @@ export function LoginForm({ className, ...props }) {
             required
           />
         </div>
-        <div className="grid gap-3">
-          <div className="flex items-center">
+        <div className="grid gap-3 relative">
+          <div className="flex items-center justify-between">
             <Label htmlFor="password">Password</Label>
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="text-sm text-blue-600 hover:underline focus:outline-none"
+            >
+            </button>
           </div>
-          <Input
-            id="password"
-            placeholder="* * * * * * *"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
+          <div className="relative">
+            <Input
+              id="password"
+              placeholder="* * * * * * *"
+              type={showPassword ? "text" : "password"}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="pr-10"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500"
+              tabIndex={-1}
+            >
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
         </div>
         <Button
           type="submit"

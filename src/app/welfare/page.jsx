@@ -60,30 +60,22 @@ export default function WelfareDashboard() {
 
   useEffect(() => {
     const fixUsersJurisdiction = async () => {
-      const userDistrictId = getUserData().DistrictID ?? 1
-      const userSubDivisionId = getUserData().SubDivisionID ?? 1
-      const userBlockId = getUserData().BlockID ?? 1
-      const userGPId = getUserData().GPID ?? 1
+      const userDistrictId = getUserData().DistrictID ?? 0
+      const userSubDivisionId = getUserData().SubDivisionID ?? 0
+      const userBlockId = getUserData().BlockID ?? 0
+      const userGPId = getUserData().GPID ?? 0
 
-      if (userDistrictId) {
-        await fetchDistricts()
-        setDistrictId(userDistrictId.toString())
-      }
+      await fetchDistricts()
+      setDistrictId(userDistrictId.toString())
 
-      if (userSubDivisionId) {
-        await fetchSubdivisions(userDistrictId)
-        setSubdivisionId(userSubDivisionId.toString())
-      }
+      await fetchSubdivisions(userDistrictId)
+      setSubdivisionId(userSubDivisionId.toString())
 
-      if (userBlockId) {
-        await fetchBlocks(userSubDivisionId)
-        setBlockId(userBlockId.toString())
-      }
+      await fetchBlocks(userSubDivisionId)
+      setBlockId(userBlockId.toString())
 
-      if (userGPId) {
-        await fetchGps(userBlockId)
-        setGpId(userGPId.toString())
-      }
+      await fetchGps(userBlockId)
+      setGpId(userGPId.toString())
 
       await fetchWelfareData()
     }
@@ -335,7 +327,7 @@ export default function WelfareDashboard() {
     },
     {
       accessorKey: "village",
-      header: "Village",
+      header: "Teagarden",
       cell: ({ row }) => row.original.village || "N/A",
     },
     {
@@ -493,7 +485,7 @@ export default function WelfareDashboard() {
                     <DialogTitle className="text-4xl font-semibold">Welfare Survey Details</DialogTitle>
                   </DialogHeader>
 
-                   <div className="grid grid-cols-1 xl:grid-cols-2 w-[100%] min-w-[100%]">
+                  <div className="grid grid-cols-1 xl:grid-cols-2 w-[100%] min-w-[100%]">
                     {/* Left Side: Survey Details */}
                     <div className="overflow-y-auto px-8 py-6 min-w-[50vw] w-[50vw]">
                       <div className="grid grid-cols-2 gap-2 text-lg">

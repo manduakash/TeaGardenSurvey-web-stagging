@@ -74,26 +74,17 @@ export default function Page() {
       const userBlockId = getUserData().BlockID ?? 0;
       const userGPId = getUserData().GPID ?? 0
 
+      await fetchDistricts();
+      setDistrictId(userDistrictId.toString());
 
-      if (userDistrictId) {
-        await fetchDistricts();
-        setDistrictId(userDistrictId.toString());
-      }
+      await fetchSubdivisions(userDistrictId);
+      setSubdivisionId(userSubDivisionId.toString())
 
-      if (userSubDivisionId) {
-        await fetchSubdivisions(userDistrictId);
-        setSubdivisionId(userSubDivisionId.toString())
-      }
+      await fetchBlocks(userSubDivisionId);
+      setBlockId(userBlockId.toString())
 
-      if (userBlockId) {
-        await fetchBlocks(userSubDivisionId);
-        setBlockId(userBlockId.toString())
-      }
-
-      if (userGPId) {
-        await fetchGps(userBlockId);
-        setGpId(userGPId.toString())
-      }
+      await fetchGps(userBlockId);
+      setGpId(userGPId.toString())
 
     }
 
@@ -232,13 +223,13 @@ export default function Page() {
       setEndDate(formattedEndDate);
 
       const user_details = getUserData()
-      console.log("hi",user_details);
+      console.log("hi", user_details);
 
       const payload = {
-        state_id: stateId ?? user_details.StateID ,
-        district_id:  user_details.DistrictID,
+        state_id: stateId ?? user_details.StateID,
+        district_id: user_details.DistrictID,
         subdivision_id: user_details.SubDivisionID,
-        block_id:  user_details.BlockID,
+        block_id: user_details.BlockID,
         village_id: gpId ?? user_details.GPID,
         from_date: formattedStartDate,
         to_date: formattedEndDate,
@@ -761,7 +752,6 @@ export default function Page() {
             {/* Doughnut Chart: SHG & Credit Linkage */}
             <div className="bg-white p-4 rounded-lg shadow-md">
               <h2 className="text-xl font-bold mb-4">SHG & Credit Linkage</h2>
-              {/* <Doughnut data={shgCreditLinkageData} /> */}
               {isLoading ? <ShgCreditLinkageSkeleton /> : <Doughnut data={shgCreditLinkageData} />}
             </div>
 

@@ -64,27 +64,18 @@ export default function SurveyDashboard() {
       const userSubDivisionId = getUserData().SubDivisionID ?? 0;
       const userBlockId = getUserData().BlockID ?? 0;
       const userGPId = getUserData().GPID ?? 0
+      
+      await fetchDistricts();
+      setDistrictId(userDistrictId.toString());
 
-      if (userDistrictId) {
-        await fetchDistricts();
-        setDistrictId(userDistrictId.toString());
-      }
+      await fetchSubdivisions(userDistrictId);
+      setSubdivisionId(userSubDivisionId.toString())
 
-      if (userSubDivisionId) {
-        await fetchSubdivisions(userDistrictId);
-        setSubdivisionId(userSubDivisionId.toString())
-      }
+      await fetchBlocks(userSubDivisionId);
+      setBlockId(userBlockId.toString())
 
-      if (userBlockId) {
-        await fetchBlocks(userSubDivisionId);
-        setBlockId(userBlockId.toString())
-      }
-
-      if (userGPId) {
-        await fetchGps(userBlockId);
-        setGpId(userGPId.toString())
-      }
-
+      await fetchGps(userBlockId);
+      setGpId(userGPId.toString())
 
       await fetchSurveyData();
 
@@ -321,7 +312,7 @@ export default function SurveyDashboard() {
     },
     {
       accessorKey: "village_name",
-      header: "Village",
+      header: "Teagarden",
     },
     {
       accessorKey: "gender",
@@ -511,7 +502,7 @@ export default function SurveyDashboard() {
                         <div className="font-semibold">Block:</div>
                         <div>{selectedRow?.block_name}</div>
 
-                        <div className="font-semibold">Village:</div>
+                        <div className="font-semibold">Teagarden:</div>
                         <div>{selectedRow?.village_name}</div>
 
                         <div className="font-semibold">House Number:</div>
@@ -561,7 +552,7 @@ export default function SurveyDashboard() {
                               <br />
                               House Number: {selectedRow?.house_number}
                               <br />
-                              Village: {selectedRow?.village_name}
+                              Teagarden: {selectedRow?.village_name}
                             </Popup>
                           </Marker>
                         </MapContainer>

@@ -58,32 +58,65 @@ export default function WelfareDashboard() {
   const [isLoading, setIsLoading] = useState(true)
   const [customMarkerIcon, setCustomMarkerIcon] = useState(null)
 
+  const [tgId, setTgId] = useState("")
+  const [tgs, setTgs] = useState([])
+
+  const fetchTgs = async (gpId) => {
+    try {
+      const response = await fetch(`${BASE_URL}dropdownList/getTeagardensByGP`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          gp_id: Number.parseInt(gpId),
+        }),
+      })
+
+      const data = await response.json()
+      console.log("tgs", data);
+
+      if (data.success) {
+        setTgs(data.data)
+      }
+    } catch (error) {
+      console.error("Error fetching GPs:", error)
+    }
+  }
+
+  const handleTgChange = (value) => {
+    setTgId(value)
+  }
+
+  const handleGpChange = (value) => {
+    setGpId(value)
+    setTgId("")
+
+    if (value) {
+      fetchTgs(value)
+    } else {
+      setTgs([])
+    }
+  }
+
   useEffect(() => {
     const fixUsersJurisdiction = async () => {
-      const userDistrictId = getUserData().DistrictID ?? 1
-      const userSubDivisionId = getUserData().SubDivisionID ?? 1
-      const userBlockId = getUserData().BlockID ?? 1
-      const userGPId = getUserData().GPID ?? 1
+      const userDistrictId = getUserData().DistrictID ?? ""
+      const userSubDivisionId = getUserData().SubDivisionID ?? ""
+      const userBlockId = getUserData().BlockID ?? ""
+      const userGPId = getUserData().GPID ?? ""
 
-      if (userDistrictId) {
-        await fetchDistricts()
-        setDistrictId(userDistrictId.toString())
-      }
+      await fetchDistricts()
+      setDistrictId(userDistrictId.toString())
 
-      if (userSubDivisionId) {
-        await fetchSubdivisions(userDistrictId)
-        setSubdivisionId(userSubDivisionId.toString())
-      }
+      await fetchSubdivisions(userDistrictId)
+      setSubdivisionId(userSubDivisionId.toString())
 
-      if (userBlockId) {
-        await fetchBlocks(userSubDivisionId)
-        setBlockId(userBlockId.toString())
-      }
+      await fetchBlocks(userSubDivisionId)
+      setBlockId(userBlockId.toString())
 
-      if (userGPId) {
-        await fetchGps(userBlockId)
-        setGpId(userGPId.toString())
-      }
+      await fetchGps(userBlockId)
+      setGpId(userGPId.toString())
 
       await fetchWelfareData()
     }
@@ -286,10 +319,6 @@ export default function WelfareDashboard() {
     }
   }
 
-  const handleGpChange = (value) => {
-    setGpId(value)
-  }
-
   const handleSearch = () => {
     fetchWelfareData()
   }
@@ -335,7 +364,7 @@ export default function WelfareDashboard() {
     },
     {
       accessorKey: "village",
-      header: "Village",
+      header: "Teagarden",
       cell: ({ row }) => row.original.village || "N/A",
     },
     {
@@ -454,6 +483,25 @@ export default function WelfareDashboard() {
                       </SelectContent>
                     </Select>
                   </div>
+
+                  {/* TG Dropdown */}
+                  <div className="">
+                    <label className="block text-sm font-medium text-gray-700">Select Tea-Garden</label>
+                    <Select value={tgId} onValueChange={handleTgChange} disabled={!gpId}>
+                      <SelectTrigger className="w-full hover:bg-slate-100">
+                        <SelectValue placeholder="Select TG" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="0">All Teagardens</SelectItem>
+                        {tgs.map((tg) => (
+                          <SelectItem key={tg.id} value={tg.id.toString()}>
+                            {tg.teagarden_name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
                 </div>
 
                 <div className="flex gap-2 justify-center">
