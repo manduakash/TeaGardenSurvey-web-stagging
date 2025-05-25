@@ -255,7 +255,8 @@ export default function WelfareDashboard() {
             district_id: districtId ? Number.parseInt(districtId) : 0,
             subdivision_id: subdivisionId ? Number.parseInt(subdivisionId) : 0,
             block_id: blockId ? Number.parseInt(blockId) : 0,
-            village_id: villageId,
+            // village_id: villageId,
+            village_id: tgId,
             start_date: formattedStartDate,
             end_date: formattedEndDate,
           }),
@@ -562,6 +563,12 @@ export default function WelfareDashboard() {
 
                         <div className="font-semibold">Training Name:</div>
                         <div>{selectedRow?.training_name || "N/A"}</div>
+
+                        <div className="font-semibold">Migrant Laborer:</div>
+                        <div>{selectedRow?.is_migrant_laborer ? "Yes" : "No"}</div>
+
+                        <div className="font-semibold">Migration State Name:</div>
+                        <div>{selectedRow?.migration_state_name || "N/A"}</div>
 
                         <div className="font-semibold">Survey Date:</div>
                         <div>

@@ -58,6 +58,47 @@ export default function WelfareDashboard() {
   const [isLoading, setIsLoading] = useState(true)
   const [customMarkerIcon, setCustomMarkerIcon] = useState(null)
 
+  const [tgId, setTgId] = useState("")
+  const [tgs, setTgs] = useState([])
+
+  const fetchTgs = async (gpId) => {
+    try {
+      const response = await fetch(`${BASE_URL}dropdownList/getTeagardensByGP`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          gp_id: Number.parseInt(gpId),
+        }),
+      })
+
+      const data = await response.json()
+      console.log("tgs", data);
+
+      if (data.success) {
+        setTgs(data.data)
+      }
+    } catch (error) {
+      console.error("Error fetching GPs:", error)
+    }
+  }
+
+  const handleTgChange = (value) => {
+    setTgId(value)
+  }
+
+  const handleGpChange = (value) => {
+    setGpId(value)
+    setTgId("")
+
+    if (value) {
+      fetchTgs(value)
+    } else {
+      setTgs([])
+    }
+  }
+
   useEffect(() => {
     const fixUsersJurisdiction = async () => {
       const userDistrictId = getUserData().DistrictID ?? 0
@@ -214,7 +255,8 @@ export default function WelfareDashboard() {
             district_id: districtId ? Number.parseInt(districtId) : 0,
             subdivision_id: subdivisionId ? Number.parseInt(subdivisionId) : 0,
             block_id: blockId ? Number.parseInt(blockId) : 0,
-            village_id: villageId,
+            // village_id: villageId,
+            village_id: tgId ? Number.parseInt(tgId) : 0,
             start_date: formattedStartDate,
             end_date: formattedEndDate,
           }),
@@ -276,10 +318,6 @@ export default function WelfareDashboard() {
     } else {
       setGps([])
     }
-  }
-
-  const handleGpChange = (value) => {
-    setGpId(value)
   }
 
   const handleSearch = () => {
@@ -441,6 +479,24 @@ export default function WelfareDashboard() {
                         {gps.map((gp) => (
                           <SelectItem key={gp.id} value={gp.id.toString()}>
                             {gp.gp_name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* TG Dropdown */}
+                  <div className="">
+                    <label className="block text-sm font-medium text-gray-700">Select Tea-Garden</label>
+                    <Select value={tgId} onValueChange={handleTgChange} disabled={!gpId}>
+                      <SelectTrigger className="w-full hover:bg-slate-100">
+                        <SelectValue placeholder="Select TG" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="0">All Teagardens</SelectItem>
+                        {tgs.map((tg) => (
+                          <SelectItem key={tg.id} value={tg.id.toString()}>
+                            {tg.teagarden_name}
                           </SelectItem>
                         ))}
                       </SelectContent>

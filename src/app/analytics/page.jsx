@@ -64,6 +64,49 @@ export default function Page() {
   const [welfareProgramsCount, setWelfareProgramsCount] = useState(0)
   const [lowBirthWeightCount, setLowBirthWeightCount] = useState(0)
   const [HouseHoldCount, setHouseHoldCount] = useState([])
+
+    const BASE_URL = process.env.NEXT_PUBLIC_SERVICE_URL;
+    const [tgId, setTgId] = useState("")
+    const [tgs, setTgs] = useState([])
+  
+    const fetchTgs = async (gpId) => {
+      try {
+        const response = await fetch(`${BASE_URL}dropdownList/getTeagardensByGP`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            gp_id: Number.parseInt(gpId),
+          }),
+        })
+  
+        const data = await response.json()
+        console.log("tgs", data);
+  
+        if (data.success) {
+          setTgs(data.data)
+        }
+      } catch (error) {
+        console.error("Error fetching GPs:", error)
+      }
+    }
+  
+    const handleTgChange = (value) => {
+      setTgId(value)
+    }
+  
+    const handleGpChange = (value) => {
+      setGpId(value)
+      setTgId("")
+  
+      if (value) {
+        fetchTgs(value)
+      } else {
+        setTgs([])
+      }
+    }
+
   // Fetch districts on initial load
   useEffect(() => {
 
@@ -227,10 +270,11 @@ export default function Page() {
 
       const payload = {
         state_id: stateId ?? user_details.StateID,
-        district_id: user_details.DistrictID,
-        subdivision_id: user_details.SubDivisionID,
-        block_id: user_details.BlockID,
-        village_id: gpId ?? user_details.GPID,
+        district_id: districtId ?? user_details.DistrictID,
+        subdivision_id: subdivisionId ?? user_details.SubDivisionID,
+        block_id: blockId ?? user_details.BlockID,
+        // gp_id: gpId ?? user_details.GPID,
+        village_id: tgId ?? 0,
         from_date: formattedStartDate,
         to_date: formattedEndDate,
       };
@@ -330,10 +374,6 @@ export default function Page() {
     } else {
       setGps([])
     }
-  }
-
-  const handleGpChange = (value) => {
-    setGpId(value)
   }
 
   const handleSearch = () => {
@@ -698,6 +738,25 @@ export default function Page() {
                     </SelectContent>
                   </Select>
                 </div>
+
+                {/* TG Dropdown */}
+                <div className="">
+                  <label className="block text-sm font-medium text-gray-700">Select Tea-Garden</label>
+                  <Select value={tgId} onValueChange={handleTgChange} disabled={!gpId}>
+                    <SelectTrigger className="w-full hover:bg-slate-100">
+                      <SelectValue placeholder="Select TG" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="0">All Teagardens</SelectItem>
+                      {tgs.map((tg) => (
+                        <SelectItem key={tg.id} value={tg.id.toString()}>
+                          {tg.teagarden_name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
               </div>
 
               {/* Search & Clear Buttons */}
