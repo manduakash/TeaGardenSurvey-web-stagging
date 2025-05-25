@@ -104,12 +104,12 @@ export default function Page() {
   const fetchDashboardCount = async () => {
     setIsLoading(true)
     try {
+      const district_id = districtId ? Number.parseInt(districtId) : 0;
       const subdivision_id = subdivisionId ? Number.parseInt(subdivisionId) : 0;
       const block_id = blockId ? Number.parseInt(blockId) : 0;
       const gp_id = gpId ? Number.parseInt(gpId) : 0;
       const teagarden_id = 0; // Not used in the filter UI
-      const response = await getDashboardCount(subdivision_id, block_id, gp_id, teagarden_id);
-      console.log(response);
+      const response = await getDashboardCount(district_id, subdivision_id, block_id, gp_id, teagarden_id);
 
       if (response.success) {
         setDashboardCount(response.data[0]);

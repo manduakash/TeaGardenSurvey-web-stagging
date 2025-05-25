@@ -1,6 +1,6 @@
 const api_url = process.env.NEXT_PUBLIC_SERVICE_URL;
 
-export async function getDashboardCount(subdiv, blk, gp, village ) {
+export async function getDashboardCount(dist, subdiv, blk, gp, tg) {
   try {
     const response = await fetch(`${api_url}dashboardCount`, {
       method: "POST",
@@ -8,10 +8,11 @@ export async function getDashboardCount(subdiv, blk, gp, village ) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        sub_div: subdiv || 1,
-        blk: blk || 1,
+        dist: dist || 0,
+        sub_div: subdiv || 0,
+        blk: blk || 0,
         gp: gp || 0,
-        village: village || 0,
+        tg: tg || 0,
       }),
     });
 
