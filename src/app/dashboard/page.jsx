@@ -15,6 +15,23 @@ import { getDashboardCount } from "./api"
 import { Loader2, Search } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { getUserData } from "@/utils/cookies"
+import { Pie } from "react-chartjs-2"
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement,
+} from "chart.js";
+// Register Chart.js components
+ChartJS.register(
+  CategoryScale,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement,
+);
 
 export default function Page() {
   const [dashboardCount, setDashboardCount] = useState("")
@@ -28,7 +45,7 @@ export default function Page() {
   const [subdivisionId, setSubdivisionId] = useState("")
   const [blockId, setBlockId] = useState("")
   const [gpId, setGpId] = useState("")
-  
+
   // Data states
   const [districts, setDistricts] = useState([])
   const [subdivisions, setSubdivisions] = useState([])
@@ -65,6 +82,62 @@ export default function Page() {
       setBlocks([])
     }
   }
+
+  const HealthMetricsSkeleton = () => {
+    return (
+      <div className="w-full h-72 flex flex-col items-center justify-between animate-pulse">
+        {/* Legend blocks */}
+        <div className="grid grid-cols-2 gap-2 mb-4 w-full">
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className="flex items-center gap-2">
+              <div className="w-3 h-3 bg-gray-300 rounded-sm" />
+              <div className="h-3 w-20 bg-gray-300 rounded" />
+            </div>
+          ))}
+        </div>
+
+        {/* Circular Pie placeholder */}
+        <div className="w-60 h-60 bg-gray-200 rounded-full" />
+      </div>
+    );
+  };
+
+  const otherChartDetails = {
+    labels: [
+      "Migrant Labours",
+      "SHG Members",
+      "Old age pensions",
+      "Swasthya Sathi",
+      "Lakshmir Bhandar",
+    ],
+    datasets: [
+      {
+        label: "Livlihood and Welfare Report",
+        data: [
+          dashboardCount?.migrant_laborer_count,
+          dashboardCount?.shg_member_count,
+          dashboardCount?.old_age_pension_scheme_holder_count,
+          dashboardCount?.swasthya_sathi_scheme_holder_count,
+          dashboardCount?.lakshmir_bhandar_scheme_holder_count,
+        ],
+        backgroundColor: [
+          "rgba(255, 99, 132, 0.5)",   // Red
+          "rgba(54, 162, 235, 0.5)",   // Blue
+          "rgba(255, 206, 86, 0.5)",   // Yellow
+          "rgba(75, 192, 192, 0.5)",   // Teal
+          "rgba(153, 102, 255, 0.5)",  // Purple
+        ],
+        borderColor: [
+          "rgba(255, 99, 132, 1)",
+          "rgba(54, 162, 235, 1)",
+          "rgba(255, 206, 86, 1)",
+          "rgba(75, 192, 192, 1)",
+          "rgba(153, 102, 255, 1)",
+        ],
+        borderWidth: 1,
+      },
+    ],
+  };
 
   const handleBlockChange = (value) => {
     setBlockId(value)
@@ -414,39 +487,56 @@ export default function Page() {
 
 
                 <SamMamChart
-                  title="Women Nutrition Report"
+                  title="Women Nutrition Survey Data"
                   description="SAM vs MAM - Female"
                   data={[
-                    { label: "SAM", value: dashboardCount?.sam_women, fill: "hsl(var(--chart-1))" },
+                    { label: "SAM", value: dashboardCount?.sam_women, fill: "rgba(255, 99, 132, 0.5)" },
                     { label: "MAM", value: dashboardCount?.mam_women, fill: "hsl(var(--chart-2))" },
-                    { label: "Normal", value: dashboardCount?.normal_women, fill: "hsl(var(--chart-3))" },
                   ]}
                   isLoading={isLoading}
                 />
 
                 <SamMamChart
-                  title="Children Nutrition Report"
+                  title="Children Nutrition Survey Data"
                   description="SAM vs MAM - Children"
                   data={[
-                    { label: "SAM", value: dashboardCount?.sam_children, fill: "hsl(var(--chart-1))" },
+                    { label: "SAM", value: dashboardCount?.sam_children, fill: "rgba(153, 102, 255, 0.5)" },
                     { label: "MAM", value: dashboardCount?.mam_children, fill: "hsl(var(--chart-2))" },
-                    { label: "Normal", value: dashboardCount?.normal_children, fill: "hsl(var(--chart-3))" },
                   ]}
                   isLoading={isLoading}
                 />
 
                 <BpReportChart
                   data={[
-                    { label: "Female", low: dashboardCount?.low_bp_women, high: dashboardCount?.high_bp_women },
-                    { label: "Male", low: dashboardCount?.low_bp_all, high: dashboardCount?.high_bp_all },
+                    { label: "Women", low: dashboardCount?.underweight_women_count, high: dashboardCount?.overweight_women_count },
+                    { label: "Children", low: dashboardCount?.underweight_children_count, high: dashboardCount?.overweight_children_count },
                   ]}
                   isLoading={isLoading}
                 />
 
-                <SugarReportChart data={[
+                {/* <SugarReportChart data={[
                   { label: "Female", low: dashboardCount?.low_sugar_women, high: dashboardCount?.high_sugar_women },
                   { label: "Male", low: dashboardCount?.low_sugar_all, high: dashboardCount?.high_sugar_all },
                 ]}
+                  isLoading={isLoading}
+                /> */}
+
+                {/* Pie Chart: Health Metrics */}
+                {/* <div className="col-span-1 bg-white p-4 rounded-lg shadow-md">
+                  <h2 className="text-xl font-bold mb-4">Livelihood & Welfare Data</h2>
+                  {isLoading ? <HealthMetricsSkeleton height="h-84" /> : <Pie height={100} width={100} data={otherChartDetails} />}
+                </div> */}
+
+                <SamMamChart
+                  title="Welfare and Livelihood Survey Data"
+                  description="Migrant Labours, SHG Members, Old age pensions, Swasthya Sathi, Lakshmir Bhandar"
+                  data={[
+                    { label: "Migrant Labours", value: dashboardCount?.migrant_laborer_count, fill: "rgba(255, 99, 132, 0.5)" },
+                    { label: "SHG Members", value: dashboardCount?.shg_member_count, fill: "rgba(54, 162, 235, 0.5)" },
+                    { label: "Old age pensions", value: dashboardCount?.old_age_pension_scheme_holder_count, fill: "rgba(255, 206, 86, 0.5)" },
+                    { label: "Swasthya Sathi", value: dashboardCount?.swasthya_sathi_scheme_holder_count, fill: "rgba(75, 192, 192, 0.5)" },
+                    { label: "Lakshmir Bhandar", value: dashboardCount?.lakshmir_bhandar_scheme_holder_count, fill: "rgba(153, 102, 255, 0.5)" },
+                  ]}
                   isLoading={isLoading}
                 />
               </div>

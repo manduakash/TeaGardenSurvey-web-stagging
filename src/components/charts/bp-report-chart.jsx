@@ -27,13 +27,17 @@ import { Skeleton } from "@/components/ui/skeleton"
 
 
 const defaultColors = [
-  "hsl(var(--chart-1))",
-  "hsl(var(--chart-2))",
+  "rgba(75, 192, 192, 0.5)",
+  "rgba(153, 102, 255, 0.5)",
 ]
+// rgba(54, 162, 235, 0.5)
+// rgba(255, 206, 86, 0.5)
+// rgba(75, 192, 192, 0.5)
+// rgba(153, 102, 255, 0.5)
 
 export function BpReportChart({
-  title = "Blood Pressure Report",
-  description = "Low & High BP by Gender",
+  title = "Underweigh & Overweight Report",
+  description = "Women Vs Children",
   data,
   isLoading,
 }) {
@@ -49,8 +53,8 @@ export function BpReportChart({
   }))
 
   const chartConfig = {
-    low: { label: "Low BP" },
-    high: { label: "High BP" },
+    low: { label: "Underweight" },
+    high: { label: "Overweight" },
     ...Object.fromEntries(
       chartData.map((d) => [
         d.label.toLowerCase(),
@@ -135,7 +139,7 @@ export function BpReportChart({
       </CardContent>
       <CardFooter className="flex-col items-start gap-2 text-sm">
         <div className="leading-none text-muted-foreground">
-          Blood Pressure status by gender over the recent survey
+          Body weight figures Body mass index wise over the recent survey
         </div>
       </CardFooter>
     </Card>
