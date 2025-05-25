@@ -565,9 +565,6 @@ export default function SurveyDashboard() {
                         <div className="font-semibold">House Number:</div>
                         <div>{selectedRow?.house_number}</div>
 
-                        <div className="font-semibold">Total Members:</div>
-                        <div>{selectedRow?.total_members}</div>
-
                         <div className="font-semibold">Name:</div>
                         <div>{selectedRow?.name}</div>
 

@@ -255,7 +255,7 @@ export default function WelfareDashboard() {
             district_id: districtId ? Number.parseInt(districtId) : 0,
             subdivision_id: subdivisionId ? Number.parseInt(subdivisionId) : 0,
             block_id: blockId ? Number.parseInt(blockId) : 0,
-            // village_id: villageId,
+            gp_id: gpId ? Number.parseInt(gpId) : 0,
             village_id: tgId,
             start_date: formattedStartDate,
             end_date: formattedEndDate,

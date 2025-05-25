@@ -240,9 +240,6 @@ export default function Page() {
       const start = new Date();
       start.setDate(today.getDate() - 30);
 
-      setStartDate(start);
-      setEndDate(today);
-
       // Format dates for API
       const formattedStartDate = startDate ? startDate : start;
       const formattedEndDate = endDate ? endDate : today;
@@ -259,6 +256,7 @@ export default function Page() {
             district_id: districtId ? Number.parseInt(districtId) : 0,
             subdivision_id: subdivisionId ? Number.parseInt(subdivisionId) : 0,
             block_id: blockId ? Number.parseInt(blockId) : 0,
+            gp_id: gpId ? Number.parseInt(gpId) : 0,
             village_id: tgId ? Number.parseInt(tgId) : 0,
             start_date: formattedStartDate,
             end_date: formattedEndDate,
@@ -670,8 +668,11 @@ export default function Page() {
                     <div className="font-medium">Household No:</div>
                     <div>{selectedRow?.house_number}</div>
 
-                    <div className="font-medium">Block:</div>
+                    <div className="font-medium">Block/Municipality:</div>
                     <div>{selectedRow?.block_name}</div>
+
+                    <div className="font-medium">Gram-Panchayat/Ward:</div>
+                    <div>{selectedRow?.gp_name}</div>
 
                     <div className="font-medium">Teagarden:</div>
                     <div>{selectedRow?.village_name}</div>
