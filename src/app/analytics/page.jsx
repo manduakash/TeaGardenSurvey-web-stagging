@@ -46,10 +46,10 @@ export default function Page() {
 
   // Location filter states
   const [stateId, setStateId] = useState(1) // Default to West Bengal (ID: 1)
-  const [districtId, setDistrictId] = useState("")
-  const [subdivisionId, setSubdivisionId] = useState("")
-  const [blockId, setBlockId] = useState("")
-  const [gpId, setGpId] = useState("")
+  const [districtId, setDistrictId] = useState("0")
+  const [subdivisionId, setSubdivisionId] = useState("0")
+  const [blockId, setBlockId] = useState("0")
+  const [gpId, setGpId] = useState("0")
 
   // Data states
   const [districts, setDistricts] = useState([])
@@ -63,10 +63,11 @@ export default function Page() {
   const [enrollmentCount, setEnrollmentCount] = useState(0)
   const [welfareProgramsCount, setWelfareProgramsCount] = useState(0)
   const [lowBirthWeightCount, setLowBirthWeightCount] = useState(0)
+  const [migratedLaborCount, setMigratedLaborCount] = useState(0)
   const [HouseHoldCount, setHouseHoldCount] = useState([])
 
     const BASE_URL = process.env.NEXT_PUBLIC_SERVICE_URL;
-    const [tgId, setTgId] = useState("")
+    const [tgId, setTgId] = useState("0")
     const [tgs, setTgs] = useState([])
   
     const fetchTgs = async (gpId) => {
@@ -266,20 +267,19 @@ export default function Page() {
       setEndDate(formattedEndDate);
 
       const user_details = getUserData()
-      console.log("hi", user_details);
 
       const payload = {
         state_id: stateId ?? user_details.StateID,
         district_id: districtId ?? user_details.DistrictID,
         subdivision_id: subdivisionId ?? user_details.SubDivisionID,
         block_id: blockId ?? user_details.BlockID,
-        // gp_id: gpId ?? user_details.GPID,
-        village_id: tgId ?? 0,
+        gp_id: gpId ?? user_details.GPID,
+        teagarden_id: tgId ?? 0,
         from_date: formattedStartDate,
         to_date: formattedEndDate,
       };
 
-      const [houseHoldRes, healthRes, enrollmentRes, welfareProgramsRes, lowBithWeigthRes] = await Promise.all([
+      const [houseHoldRes, healthRes, enrollmentRes, welfareProgramsRes, lowBithWeigthRes, migratedLaborRes] = await Promise.all([
         fetch(`${serviceurl}dropdownList/getHouseholdSurveyCountAnalytics`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -305,28 +305,29 @@ export default function Page() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
         }),
+        fetch(`${serviceurl}dropdownList/getMigratedLaborAndNonMigratedLaborCounts`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        }),
       ]);
 
-      const [houseHoldData, healthData, enrollmentData, welfareProgramsData, lowBirthWeightData] = await Promise.all([
+      const [houseHoldData, healthData, enrollmentData, welfareProgramsData, lowBirthWeightData, migratedLaborData] = await Promise.all([
         houseHoldRes.json(),
         healthRes.json(),
         enrollmentRes.json(),
         welfareProgramsRes.json(),
-        lowBithWeigthRes.json()
+        lowBithWeigthRes.json(),
+        migratedLaborRes.json()
       ]);
 
       if (houseHoldData.success && healthData.success && enrollmentData.success && welfareProgramsData.success && lowBirthWeightData.success) {
         setHouseHoldCount(houseHoldData?.data)
-        setHealthCount(healthData.data[0]);
-        setEnrollmentCount(enrollmentData.data[0]);
-        setWelfareProgramsCount(welfareProgramsData.data[0]);
-        setLowBirthWeightCount(lowBirthWeightData.data[0]);
-        console.log("survey", healthData.data[0]);
-        console.log("enrollment", enrollmentData.data[0]);
-        console.log("low", lowBirthWeightData.data[0]);
-        console.log("data", houseHoldData?.data);
-
-
+        setHealthCount(healthData?.data[0]);
+        setEnrollmentCount(enrollmentData?.data[0]);
+        setWelfareProgramsCount(welfareProgramsData?.data[0]);
+        setLowBirthWeightCount(lowBirthWeightData?.data[0]);
+        setMigratedLaborCount(migratedLaborData?.data[0]);
       } else {
         setSurveyData([]);
       }
@@ -470,11 +471,11 @@ export default function Page() {
   };
 
   const shgCreditLinkageData = {
-    labels: ["Training Received", "Credit Linkage"],
+    labels: ["Migrated Laborers", "Non-Migrated Laborers"],
     datasets: [
       {
-        label: "SHG & Credit Linkage",
-        data: [60, 40],
+        label: "Labours Count",
+        data: [migratedLaborCount?.migrated_laborers, migratedLaborCount?.non_migrated_laborers],
         backgroundColor: ["rgba(54, 162, 235, 0.5)", "rgba(255, 99, 132, 0.5)"],
         borderColor: ["rgba(54, 162, 235, 1)", "rgba(255, 99, 132, 1)"],
         borderWidth: 1,
@@ -808,9 +809,9 @@ export default function Page() {
               </div>
             </div>
 
-            {/* Doughnut Chart: SHG & Credit Linkage */}
+            {/* Migrated Laborers & Non-Migrated Laborers */}
             <div className="bg-white p-4 rounded-lg shadow-md">
-              <h2 className="text-xl font-bold mb-4">SHG & Credit Linkage</h2>
+              <h2 className="text-xl font-bold mb-4">Migrated & Non-Migrated Laborers</h2>
               {isLoading ? <ShgCreditLinkageSkeleton /> : <Doughnut data={shgCreditLinkageData} />}
             </div>
 
