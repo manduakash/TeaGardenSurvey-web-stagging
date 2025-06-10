@@ -102,6 +102,7 @@ export async function createUser(
   username,
   password,
   fullname,
+  contactno,
   userType,
   state,
   district,
@@ -119,6 +120,7 @@ export async function createUser(
         Username: username,
         Password: password,
         FullName: fullname,
+        ContactNo: contactno,
         UserTypeID: userType,
         StateID: state,
         DistrictID: district ? district : 0,
@@ -130,6 +132,22 @@ export async function createUser(
     });
 
    
+    return await response.json();
+  } catch (error) {
+    console.error("Failed to fetch dashboard count:", error);
+    throw error;
+  }
+}
+
+export async function getAllUsers() {
+  try {
+    const response = await fetch(`${api_url}user/getAllUsers`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
     return await response.json();
   } catch (error) {
     console.error("Failed to fetch dashboard count:", error);

@@ -52,7 +52,11 @@ export function LoginForm({ className, ...props }) {
         const encodedData = btoa(encodeURIComponent(jsonData));
 
         Cookies.save("userData", encodedData);
-        router.push("/dashboard");
+        if(UserTypeID == "4"){
+          router.push("/user-management");
+        }else{
+          router.push("/dashboard");
+        }
       } else {
         toast(
           <div className="flex items-center gap-2">

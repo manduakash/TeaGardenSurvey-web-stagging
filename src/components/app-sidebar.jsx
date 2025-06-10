@@ -39,11 +39,13 @@ const data = {
       title: "Dashboard",
       url: "/dashboard",
       icon: IconDashboard,
+      isAdmin: false,
     },
     {
       title: "Surveyed Households",
       url: "/surveyed-households",
       icon: House,
+      isAdmin: false,
     },
     // {
     //   title: "Growth Breakdowns",
@@ -54,21 +56,25 @@ const data = {
       title: "Health Metrics",
       url: "/health-metrics/all",
       icon: Stethoscope,
+      isAdmin: false,
     },
     {
       title: "Livelihoods",
       url: "/livelihoods",
       icon: IconListDetails,
+      isAdmin: false,
     },
     {
       title: "Welfare",
       url: "/welfare",
       icon: HandHeart,
+      isAdmin: false,
     },
     {
       title: "Analytics",
       url: "/analytics",
       icon: ChartNoAxesCombined,
+      isAdmin: false,
     },
     // {
     //   title: "Reports",
@@ -79,11 +85,13 @@ const data = {
       title: "No. of Members",
       url: "/no-of-members",
       icon: IconUsers,
+      isAdmin: false,
     },
     {
       title: "User Management",
       url: "/user-management",
       icon: IconUsers,
+      isAdmin: true,
     },
   ],
 

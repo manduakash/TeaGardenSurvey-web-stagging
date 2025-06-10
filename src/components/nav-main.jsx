@@ -13,42 +13,27 @@ import { BellDot } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation"; // Import usePathname
 import { useEffect, useState } from "react";
+import { getUserData } from "@/utils/cookies";
 
 export function NavMain({ items }) {
   const pathname = usePathname(); // Get the current path
   const [currentPath, setCurrentPath] = useState(pathname); // State to manage the current path
-
+  const [isAdmin, setIsAdmin] = useState(false); // State to manage the current path
+  
   useEffect(() => {
     // You can use the pathname here
     setCurrentPath(pathname);
+    setIsAdmin(getUserData()?.UserTypeID == "4");
   }, [pathname]); // Update the state when pathname changes
 
 
   return (
     <SidebarGroup>
       <SidebarGroupContent className="flex flex-col gap-2">
-        {/* <SidebarMenu>
-          <SidebarMenuItem className="flex items-center gap-2">
-            <SidebarMenuButton
-              tooltip="Quick Create"
-              className="bg-primary text-white hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground min-w-8 duration-200 ease-linear"
-            >
-              <BellDot />
-              <span>Notification(s)</span>
-            </SidebarMenuButton>
-            <Button
-              size="icon"
-              className="size-8 group-data-[collapsible=icon]:opacity-0 relative"
-              variant="outline"
-            >
-              <IconMail />
-              <div className="absolute bg-red-600 h-2 w-2 rounded-full -right-0.5 -top-0.5" />
-              <span className="sr-only">Inbox</span>
-            </Button>
-          </SidebarMenuItem>
-        </SidebarMenu> */}
+        
         <SidebarMenu className="group">
           {items?.map((item, i) => (
+            isAdmin && item.isAdmin && (
             <SidebarMenuItem
               key={i}
              
@@ -62,6 +47,7 @@ export function NavMain({ items }) {
                 </SidebarMenuButton>
               </Link>
             </SidebarMenuItem>
+            )
           ))}
         </SidebarMenu>
       </SidebarGroupContent>
