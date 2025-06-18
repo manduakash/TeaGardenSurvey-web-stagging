@@ -93,12 +93,12 @@ const data = {
       icon: IconUsers,
       isAdmin: true,
     },
-    {
-      title: "Training Management",
-      url: "/training-management",
-      icon: IconUsers,
-      isAdmin: true,
-    },
+    // {
+    //   title: "Training Management",
+    //   url: "/training-management",
+    //   icon: IconUsers,
+    //   isAdmin: true,
+    // },
   ],
 
   navSecondary: [
