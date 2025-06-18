@@ -253,19 +253,19 @@ export function SectionCards({ dashboardCount, isLoading }) {
                 <CardFooter className="flex flex-col items-start gap-1 text-sm">
                   <div className="flex items-center justify-between w-full gap-2 text-base font-medium">
                     <span className="flex justify-center items-center gap-2 text-sm"><GrCertificate className="h-4 w-4 text-violet-600" />
-                      SC/ST Caste Certificate:</span> <span className="font-semibold">{dashboardCount?.caste_certificate_women ?? 0}</span>
+                      SC/ST Caste Certificate:</span> <span className="font-semibold">{dashboardCount?.caste_certificate_women ?? 0}%</span>
                   </div>
                   <div className="flex items-center justify-between w-full gap-2 text-base font-medium">
                     <span className="flex justify-center items-center gap-2 text-sm"><HiOutlineDocumentCurrencyRupee className="h-4 w-4 text-green-600" />
-                      Lakshmir Bhandar:</span> <span className="font-semibold">{dashboardCount?.lakshmir_bhandar_women ?? 0}</span>
+                      Lakshmir Bhandar:</span> <span className="font-semibold">{dashboardCount?.lakshmir_bhandar_women ?? 0}%</span>
                   </div>
                   <div className="flex items-center justify-between w-full gap-2 text-base font-medium">
                     <span className="flex justify-center items-center gap-2 text-sm"><HeartPulse className="h-4 w-4 text-red-500" />
-                      Swasthya Sathi:</span> <span className="font-semibold">{dashboardCount?.swasthya_sathi_women ?? 0}</span>
+                      Swasthya Sathi:</span> <span className="font-semibold">{dashboardCount?.swasthya_sathi_women ?? 0}%</span>
                   </div>
                   <div className="flex items-center justify-between w-full gap-2 text-base font-medium">
                     <span className="flex justify-center items-center gap-2 text-sm"><MdElderly className="h-4 w-4 text-yellow-600" />
-                      Old Age Pension:</span> <span className="font-semibold">{dashboardCount?.old_age_pension_women ?? 0}</span>
+                      Old Age Pension:</span> <span className="font-semibold">{dashboardCount?.old_age_pension_women ?? 0}%</span>
                   </div>
 
                   <Button variant="outline" size={"sm"} className="group mx-auto p-0 rounded-2xl bg-violet-200 hover:bg-violet-200 border-slate-300 hover:ring-violet-500 hover:ring-1"><Link href="/welfare" className="m-0 p-2 flex justify-center items-center gap-2 text-xs">show more <ArrowRightIcon className="text-slate-400 group-hover:text-violet-700" /></Link></Button>
