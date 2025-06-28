@@ -369,6 +369,11 @@ export default function WelfareDashboard() {
       cell: ({ row }) => row.original.village || "N/A",
     },
     {
+      accessorKey: "family_head_contact_number",
+      header: "Contact",
+      cell: ({ row }) => row.original.family_head_contact_number || "N/A",
+    },
+    {
       id: "actions",
       header: "Actions",
       cell: ({ row }) => (
@@ -545,36 +550,36 @@ export default function WelfareDashboard() {
                     {/* Left Side: Survey Details */}
                     <div className="overflow-y-auto px-8 py-6 min-w-[50vw] w-[50vw]">
                       <div className="grid grid-cols-2 gap-2 text-lg">
-                        <div className="font-semibold">Family Head Name :</div>
+                        <div className="font-semibold">Family Head's Name :</div>
                         <div>{selectedRow?.family_head_name || "N/A"}</div>
 
-                        <div className="font-semibold">Family Head Contact No. :</div>
+                        <div className="font-semibold">Family Head's Contact No. :</div>
                         <div>{selectedRow?.family_head_contact_number || "N/A"}</div>
 
-                        <div className="font-semibold">Caste Certificate :</div>
-                        <div>{selectedRow?.caste_certificate ? "Yes" : "No"}</div>
-
-                        <div className="font-semibold">Caste Certificate No :</div>
-                        <div>{selectedRow?.caste_certificate_id_no || "N/A"}</div>
-
-                        <div className="font-semibold">Lakshmir Bhandar:</div>
+                        <div className="font-semibold">Is TeaGarden ID Card Available ?</div>
+                        <div>{selectedRow?.labour_id ? "Yes" : "No"}</div>
+                        {selectedRow?.labour_id ? (
+                          <><div className="font-semibold">TeaGarden ID Card No. :</div>
+                            <div>{selectedRow?.labour_card_no || "N/A"}</div>
+                          </>) : null}
+                        <div className="font-semibold">Enrolled Under Lakhmir Bhandar Scheme?</div>
                         <div>{selectedRow?.lakshmir_bhandar ? "Yes" : "No"}</div>
 
-                        <div className="font-semibold">Lakshmir Bhandar No:</div>
-                        <div>{selectedRow?.lakshmir_bhandar_card_no || "N/A"}</div>
-
-                        <div className="font-semibold">Swasthya Sathi :</div>
+                        {selectedRow?.lakshmir_bhandar ? (<><div className="font-semibold">Lakshmir Bhandar No:</div>
+                          <div>{selectedRow?.lakshmir_bhandar_card_no || "N/A"}</div>
+                        </>) : null}
+                        <div className="font-semibold">Enrolled Under Swasthya Sathi Scheme?</div>
                         <div>{selectedRow?.swasthya_sathi ? "Yes" : "No"}</div>
 
-                        <div className="font-semibold">Swasthya Sathi Card No :</div>
-                        <div>{selectedRow?.swasthya_sathi_card_no || "N/A"}</div>
-
-                        <div className="font-semibold">Old Age Pension:</div>
+                        {selectedRow?.swasthya_sathi ? (<><div className="font-semibold">Swasthya Sathi Card No :</div>
+                          <div>{selectedRow?.swasthya_sathi_card_no || "N/A"}</div>
+                        </>) : null}
+                        <div className="font-semibold">Receiving Old Age Pension?</div>
                         <div>{selectedRow?.old_age_pension ? "Yes" : "No"}</div>
 
-                        <div className="font-semibold">Old Age Pension No. :</div>
-                        <div>{selectedRow?.old_age_pension_id_no || "N/A"}</div>
-
+                        {selectedRow?.old_age_pension ? (<><div className="font-semibold">Old Age Pension No. :</div>
+                          <div>{selectedRow?.old_age_pension_id_no || "N/A"}</div>
+                        </>) : null}
                         <div className="font-semibold">Survey Date:</div>
                         <div>
                           {selectedRow?.created_at

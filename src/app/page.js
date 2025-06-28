@@ -8,6 +8,9 @@ import HealthServicesImg from "@/assets/HealthServicesImg.jpg";
 import DigitalPortalImg from "@/assets/DigitalPortalImg.jpg";
 import DataDrivenImg from "@/assets/DataDrivenImg.jpg";
 import Icon from "@/assets/favicon/android-chrome-512x512.png";
+import cm from "@/assets/cm.png";
+import logo from "@/assets/logo.png";
+import BiswaBangla from "@/assets/biswa-bangla.png";
 import {
   ChartNetwork,
   HandHeart,
@@ -102,7 +105,7 @@ export default function Home() {
       </header>
 
       {/* Hero Section */}
-      <section className="relative h-screen flex items-center justify-center text-center text-white">
+      <section className="relative h-screen flex items-center justify-start text-center text-white">
         {/* Background Image */}
         <div className="absolute inset-0">
           <Image
@@ -116,15 +119,39 @@ export default function Home() {
         </div>
 
         {/* Content in Front of Background */}
-        <div className="relative z-10 max-w-3xl px-6">
-          <h2 className="text-4xl font-bold mb-4">
+        <div className="relative z-10 px-6">
+          <div className="flex w-full gap-6 items-center">
+            <Image
+              className="rounded-full bg-white shadow ring-2 ring-green-400 p-1"
+              src={cm}
+              width={150}
+              height={150}
+              alt="logo"
+            />
+            <Image
+              className="rounded-full bg-white shadow ring-2 ring-green-400 p-1"
+              src={BiswaBangla}
+              width={150}
+              height={150}
+              alt="logo"
+            />
+            <Image
+              className="rounded-full bg-white shadow ring-2 ring-green-400 p-1"
+              src={logo}
+              width={150}
+              height={150}
+              alt="logo"
+            />
+          </div>
+
+          <h2 className="text-4xl text-start font-bold mb-4">
             Empowering Tea Garden Communities
           </h2>
-          <p className="text-lg mb-6">
+          <p className="text-lg text-start mb-6">
             A modern solution to survey and analyze tea garden households and
             welfare programs.
           </p>
-          <div className="flex justify-center gap-4">
+          <div className="flex justify-start gap-4">
             <a
               as="a"
               href="#features"
@@ -193,10 +220,10 @@ export default function Home() {
             children is crucial for improving overall community health.
             <br />
             <br />
-            Additionally, the survey prioritizes women&apos;s health, with a special
-            emphasis on pregnant and lactating mothers. Comprehensive data
-            collection will include blood pressure (BP), sugar levels, and other
-            prevalent health conditions affecting household members. By
+            Additionally, the survey prioritizes women&apos;s health, with a
+            special emphasis on pregnant and lactating mothers. Comprehensive
+            data collection will include blood pressure (BP), sugar levels, and
+            other prevalent health conditions affecting household members. By
             assessing these health indicators, the project aims to identify
             risks early and ensure timely medical intervention.
             <br />

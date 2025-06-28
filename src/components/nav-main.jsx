@@ -42,9 +42,9 @@ export function NavMain({ items }) {
         <SidebarMenu className="group">
           {items?.map((item, i) => (
              (
+              (item?.isAdmin == isAdmin) &&
             <SidebarMenuItem
               key={i}
-             
             >
               <Link href={item?.url || "#"}>
                 <SidebarMenuButton  className={`cursor-pointer ${

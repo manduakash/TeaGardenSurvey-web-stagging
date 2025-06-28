@@ -371,9 +371,18 @@ export default function SurveyDashboard() {
       cell: ({ row }) => row.original.village || "N/A",
     },
     {
-      accessorKey: "house_number",
-      header: "House Number",
+      accessorKey: "family_head_contact_number",
+      header: "Contact No.",
     },
+    {
+      accessorKey: "ration_card_number",
+      header: "Ration Card No."
+    },
+    {
+      accessorKey: "caste",
+      header: "Caste",
+    },
+
     {
       id: "actions",
       header: "Actions",
@@ -576,6 +585,18 @@ export default function SurveyDashboard() {
 
                           <div className="font-semibold">House Number:</div>
                           <div>{selectedRow?.house_number}</div>
+
+                          <div className="font-semibold">Contact Number of Family Head:</div>
+                          <div>{selectedRow?.family_head_contact_number}</div>
+
+                          <div className="font-semibold">Ration Card Number:</div>
+                          <div>{selectedRow?.ration_card_number}</div>
+
+                          <div className="font-semibold">Caste:</div>
+                          <div>{selectedRow?.caste}</div>
+
+                          {selectedRow?.caste_certificate_number && (<><div className="font-semibold">Caste Certificate Number:</div>
+                          <div>{selectedRow?.caste_certificate_number}</div></>)}
 
                           <div className="font-semibold">Family Income:</div>
                           <div>₹{Number(selectedRow?.family_income).toLocaleString()}</div>

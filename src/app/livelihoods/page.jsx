@@ -369,6 +369,10 @@ export default function WelfareDashboard() {
       cell: ({ row }) => row.original.village || "N/A",
     },
     {
+      accessorKey: "family_head_contact_number",
+      header: "Contact No.",
+    },
+    {
       id: "actions",
       header: "Actions",
       cell: ({ row }) => (
@@ -569,6 +573,21 @@ export default function WelfareDashboard() {
 
                         <div className="font-semibold">Migration State Name:</div>
                         <div>{selectedRow?.migration_state_name || "N/A"}</div>
+
+                        {selectedRow?.is_migrant_laborer ?
+                          (<>
+                            <div className="font-semibold">Occupation of Migrant Laborer:</div>
+                            <div>{selectedRow?.migrant_occupation_name || "N/A"}</div>
+                          </>) : null}
+
+                        <div className="font-semibold">Is Physically Disabled:</div>
+                        <div>{selectedRow?.is_disabled ? "Yes" : "No"}</div>
+
+                        {selectedRow?.is_disabled &&
+                          (<>
+                            <div className="font-semibold">Nature of Disability:</div>
+                            <div>{selectedRow?.nature_of_disability_name || "N/A"}</div>
+                          </>)}
 
                         <div className="font-semibold">Survey Date:</div>
                         <div>

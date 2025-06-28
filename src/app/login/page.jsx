@@ -5,6 +5,7 @@ import Image from "next/image";
 import image from "@/assets/login-bg.webp";
 import Link from "next/link";
 import Icon from "@/assets/favicon/android-chrome-512x512.png";
+import logo from "@/assets/logo.png";
 
 export default function LoginPage() {
   return (
@@ -20,6 +21,13 @@ export default function LoginPage() {
         </div>
         <div className="flex flex-1 items-center justify-center">
           <div className="w-full max-w-md bg-white dark:bg-slate-900 shadow-lg rounded-lg p-6">
+          <Image
+              className="rounded-full mx-auto bg-white shadow ring-2 ring-green-400 p-1"
+              src={logo}
+              width={100}
+              height={100}
+              alt="logo"
+            />
             {/* Card container for the login form */}
             <LoginForm />
           </div>
